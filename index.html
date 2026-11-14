@@ -274,6 +274,8 @@ body.ingame{overflow:hidden}
 #testPanel small{color:#6d5d80}
 .tp-row{display:flex;flex-wrap:wrap;gap:6px}
 .tp-row button{border:1.5px solid #c9b0ec;background:#f6f0ff;border-radius:999px;padding:6px 10px;font-family:inherit;font-weight:700;font-size:12px;color:#4b3570}
+nav button{position:relative}
+nav button.dot::after{content:'';position:absolute;top:5px;right:calc(50% - 16px);width:9px;height:9px;border-radius:50%;background:#e0394b;border:2px solid var(--ink);animation:pulse 1.2s infinite}
 </style>
 </head>
 <body>
@@ -300,11 +302,7 @@ body.ingame{overflow:hidden}
       <div class="sub" id="anSub"></div>
       <button class="btn btn-rose" id="anBtn" style="width:100%">🎁 Abrir sorpresa</button>
     </div>
-    <div class="card xmas-card hidden" id="advent">
-      <h2 id="advTitle">🎁 Calendario de adviento</h2>
-      <div class="sub" id="advSub"></div>
-      <div class="adv-grid" id="advGrid"></div>
-    </div>
+
     <div class="card">
       <h2>💧 Agüita de hoy</h2>
       <div class="sub" id="todayLabel"></div>
@@ -395,6 +393,11 @@ body.ingame{overflow:hidden}
 
   <!-- COLOR -->
   <section class="section" id="s-color">
+    <div class="card xmas-card hidden" id="advent">
+      <h2 id="advTitle">🎁 Calendario de adviento</h2>
+      <div class="sub" id="advSub"></div>
+      <div class="adv-grid" id="advGrid"></div>
+    </div>
     <div class="card">
       <h2>🎨 Hoy me siento de color:</h2>
       <div class="sub">Elegí tu color y toda la app se viste igual</div>
@@ -3156,12 +3159,12 @@ function addFresas(n,caught){S.game.total+=n;if(caught)S.game.caught=(S.game.cau
 
 /* ---------- JUEGO 1: ATRAPA FRESITAS ---------- */
 const LEVEL_SECS=20;
-const C={P:{x:0,y:0,tx:0,r:30,hit:0,sq:0},items:[],score:0,lives:3,spawnT:0,el:0,lv:1,flash:0};
-const G_CATCH={id:'catch',ic:'🍓',title:'Atrapa fresitas',help:'Mové a Mochita con el dedo 👆<br>Atrapá las 🍓 · las ✨doradas✨ valen 10<br>y esquivá las ✂️',
-  reset(count){const P=C.P;C.items=[];parts=[];C.score=0;C.lives=3;C.spawnT=.6;C.el=0;C.lv=1;C.flash=0;P.r=clamp(W*.08,26,36);P.y=H-P.r-H*.05;P.x=P.tx=W/2;P.hit=0;P.sq=0;
+const C={dx:null,px:0,P:{x:0,y:0,tx:0,r:30,hit:0,sq:0},items:[],score:0,lives:3,spawnT:0,el:0,lv:1,flash:0};
+const G_CATCH={id:'catch',ic:'🍓',title:'Atrapa fresitas',help:'Deslizá el dedo a los costados para mover a Mochita 👈👉<br>Atrapá las 🍓 · las ✨doradas✨ valen 10<br>y esquivá las ✂️',
+  reset(count){const P=C.P;C.dx=null;C.items=[];parts=[];C.score=0;C.lives=3;C.spawnT=.6;C.el=0;C.lv=1;C.flash=0;P.r=clamp(W*.08,26,36);P.y=H-P.r-H*.05;P.x=P.tx=W/2;P.hit=0;P.sq=0;
     if(count){S.game.plays++;save();}},
   onResize(){C.P.y=H-C.P.r-H*.05;C.P.x=clamp(C.P.x,C.P.r,W-C.P.r);C.P.tx=C.P.x;},
-  pointer(t,x){if(t!=='up')C.P.tx=clamp(x,C.P.r,W-C.P.r);},
+  pointer(t,x){if(t==='down'){C.dx=x;C.px=C.P.tx;}else if(t==='move'&&C.dx!=null){C.P.tx=clamp(C.px+(x-C.dx)*1.2,C.P.r,W-C.P.r);}else if(t==='up')C.dx=null;},
   sky(){return clamp((C.el/LEVEL_SECS)/8,0,1);},
   spawn(){const lv=C.lv,d=C.el/LEVEL_SECS,pS=Math.min(.6,.2+d*.05),sp=Math.min(560,120+d*38)*(H/700);
     const sc=Math.random()<pS;let t=sc?'s':'f';if(!sc&&Math.random()<1/40)t='g';else if(!sc&&isXmas()&&Math.random()<.25)t='c';
@@ -3192,12 +3195,12 @@ const J={me:{x:0,y:0,vy:0,tx:0,sq:0},pl:[],r:24,g:0,jv:0,climb:0,fresas:0,top:0}
 function jPlat(y){const d=J.climb/(H*30),w=W*clamp(.24-d*.03,.17,.24);
   const p={x:w/2+Math.random()*(W-w),y,w,t:Math.random()<Math.min(.35,d*.5)?'m':'n',vx:(Math.random()<.5?-1:1)*W*(.12+Math.random()*.1),fruit:Math.random()<.32,star:Math.random()<.03,broken:0};
   if(p.star)p.fruit=false;return p;}
-const G_JUMP={id:'jump',ic:'☁️',title:'Mochita salta',help:'Mové a Mochita con el dedo 👆<br>Saltá de nube en nube y juntá 🍓<br>⭐ = súper salto · ¡no te caigas!',
-  reset(count){J.r=clamp(W*.07,22,30);J.g=H*2.2;J.jv=-Math.sqrt(2*J.g*H*.26);J.climb=0;J.fresas=0;parts=[];
+const G_JUMP={id:'jump',ic:'☁️',title:'Mochita salta',help:'Deslizá el dedo a los costados para mover a Mochita 👈👉<br>Saltá de nube en nube y juntá 🍓<br>⭐ = súper salto · ¡no te caigas!',
+  reset(count){J.dx=null;J.r=clamp(W*.07,22,30);J.g=H*2.2;J.jv=-Math.sqrt(2*J.g*H*.26);J.climb=0;J.fresas=0;parts=[];
     J.me={x:W/2,y:H*.78,vy:J.jv,tx:W/2,sq:0};J.pl=[{x:W/2,y:H*.9,w:W*.3,t:'n',vx:0,fruit:false,star:false,broken:0}];
     let y=H*.9;while(y>-H*.2){y-=H*(.09+Math.random()*.06);J.pl.push(jPlat(y));}J.top=y;
     if(count){S.games.jump.plays++;save();}},
-  pointer(t,x){if(t!=='up')J.me.tx=clamp(x,J.r,W-J.r);},
+  pointer(t,x){if(t==='down'){J.dx=x;J.px=J.me.tx;}else if(t==='move'&&J.dx!=null){J.me.tx=clamp(J.px+(x-J.dx)*1.2,J.r,W-J.r);}else if(t==='up')J.dx=null;},
   update(dt){const m=J.me;m.x+=(m.tx-m.x)*Math.min(1,dt*10);m.sq=Math.max(0,m.sq-dt*4);const py=m.y;m.vy+=J.g*dt;m.y+=m.vy*dt;
     J.pl.forEach(p=>{if(p.t==='m'){p.x+=p.vx*dt;if(p.x<p.w/2||p.x>W-p.w/2)p.vx*=-1;}if(p.t==='b'&&p.broken)p.broken+=dt;});
     if(m.vy>0)for(const p of J.pl){if(p.t==='b'&&p.broken)continue;const feet=J.r*.9;
@@ -3227,7 +3230,7 @@ const M={cards:[],sel:[],moves:0,matched:0,lock:0,fres:0,done:0};
 function memoLayout(){const top=H*.14,bot=H*.05,cols=4,rows=4,gap=10;let cw=(W-30-gap*(cols-1))/cols,ch=cw*1.25;
   const maxH=(H-top-bot-gap*(rows-1))/rows;if(ch>maxH){ch=maxH;cw=ch/1.25;}const ox=(W-(cw*cols+gap*(cols-1)))/2,oy=top+((H-top-bot)-(ch*rows+gap*(rows-1)))/2;
   M.cards.forEach((c,i)=>{c.x=ox+(i%cols)*(cw+gap);c.y=oy+Math.floor(i/cols)*(ch+gap);c.w=cw;c.h=ch;});}
-const G_MEMO={id:'memo',ic:'🃏',title:'Memotest',help:'Dá vuelta las cartas y encontrá los pares 🃏<br>Con menos movimientos ganás más 🍓',
+const G_MEMO={id:'memo',ic:'🃏',title:'Memotest',help:'Dá vuelta las cartas y encontrá los pares 🃏<br>Ganás de 20 a 90 🍓: con menos movimientos, más',
   reset(count){const ic=isXmas()?['🎄','🎁','⛄','🔔','🍓','🍪','⭐','🧦']:['🍓','🧁','💗','🌸','⭐','🎀','🍰','🌙'];
     const deck=[...ic,...ic].map(e=>({e,up:0,f:0,done:0}));for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
     M.cards=deck;M.sel=[];M.moves=0;M.matched=0;M.lock=0;M.fres=0;M.done=0;parts=[];memoLayout();if(count){S.games.memo.plays++;save();}},
@@ -3235,7 +3238,7 @@ const G_MEMO={id:'memo',ic:'🃏',title:'Memotest',help:'Dá vuelta las cartas y
   pointer(t,x,y){if(t!=='down'||M.lock>0||M.done)return;const c=M.cards.find(c=>x>=c.x&&x<=c.x+c.w&&y>=c.y&&y<=c.y+c.h);if(!c||c.up||c.done)return;
     c.up=1;SFX.flip();M.sel.push(c);if(M.sel.length===2){M.moves++;const[a,b]=M.sel;
       if(a.e===b.e){a.done=b.done=1;M.matched++;M.sel=[];setTimeout(()=>{SFX.pop();burst(a.x+a.w/2,a.y+a.h/2,'#f2c94c',8);burst(b.x+b.w/2,b.y+b.h/2,'#f2c94c',8);},200);
-        if(M.matched===8){M.done=1;M.fres=Math.max(5,40-(M.moves-8)*3);addFresas(M.fres,0);save();setTimeout(finishG,900);}}
+        if(M.matched===8){M.done=1;M.fres=Math.max(20,90-(M.moves-8)*4);addFresas(M.fres,0);save();setTimeout(finishG,900);}}
       else M.lock=.85;}setHud();},
   update(dt){M.cards.forEach(c=>{c.f+=((c.up?1:0)-c.f)*Math.min(1,dt*12);});if(M.lock>0){M.lock-=dt;if(M.lock<=0){M.sel.forEach(c=>c.up=0);M.sel=[];}}stepParts(dt);},
   draw(){drawSky(0,0);M.cards.forEach(c=>{const s=Math.abs(Math.cos(c.f*Math.PI)),front=c.f>.5,cx=c.x+c.w/2;ctx.save();ctx.translate(cx,c.y+c.h/2);ctx.scale(Math.max(.02,s),1);
@@ -3251,7 +3254,7 @@ const G_MEMO={id:'memo',ic:'🃏',title:'Memotest',help:'Dá vuelta las cartas y
 
 /* ---------- JUEGO 4: MOCHITA VUELA ---------- */
 const F={me:{x:0,y:0,vy:0},cols:[],r:22,g:0,flap:0,sp:0,passed:0,fresas:0,started:0,dist:0};
-const G_FLY={id:'fly',ic:'🎈',title:'Mochita vuela',help:'Tocá la pantalla para que Mochita suba con su globo 🎈<br>Pasá entre las columnas y juntá 🍓',
+const G_FLY={id:'fly',ic:'🎈',title:'Mochita vuela',help:'Tocá la pantalla para que Mochita suba con su globo 🎈<br>Cada columna = +1 🍓 · cada 🍓 en el aire = +3',
   reset(count){F.r=clamp(W*.065,20,28);F.me={x:W*.3,y:H*.45,vy:0};F.g=H*1.9;F.flap=-H*.62;F.cols=[];F.sp=W*.42;F.passed=0;F.fresas=0;F.started=0;F.dist=W*.35;parts=[];
     if(count){S.games.fly.plays++;save();}},
   pointer(t){if(t!=='down')return;F.started=1;F.me.vy=F.flap;SFX.flap();},
@@ -3261,8 +3264,8 @@ const G_FLY={id:'fly',ic:'🎈',title:'Mochita vuela',help:'Tocá la pantalla pa
     const sp=F.sp*(1+Math.min(.5,F.passed*.012));F.dist-=sp*dt;
     if(F.dist<=0){F.dist=W*.6;const gap=H*Math.max(.25,.33-F.passed*.003),w=W*.17,top=H*.12+Math.random()*(this.ground()-H*.12-gap-H*.06);
       F.cols.push({x:W+10,w,gy:top,gap,fruit:Math.random()<.55,passed:0});}
-    F.cols.forEach(c=>{c.x-=sp*dt;if(!c.passed&&c.x+c.w<m.x){c.passed=1;F.passed++;SFX.tap();setHud();}
-      if(c.fruit&&Math.hypot(m.x-(c.x+c.w/2),m.y-(c.gy+c.gap/2))<F.r*1.4){c.fruit=0;F.fresas++;addFresas(1,1);SFX.pop();burst(c.x+c.w/2,c.gy+c.gap/2,'#e8456b',8);setHud();if(F.fresas%10===0)save();}
+    F.cols.forEach(c=>{c.x-=sp*dt;if(!c.passed&&c.x+c.w<m.x){c.passed=1;F.passed++;F.fresas++;addFresas(1,0);SFX.tap();setHud();}
+      if(c.fruit&&Math.hypot(m.x-(c.x+c.w/2),m.y-(c.gy+c.gap/2))<F.r*1.4){c.fruit=0;F.fresas+=3;addFresas(3,1);SFX.pop();burst(c.x+c.w/2,c.gy+c.gap/2,'#e8456b',8);setHud();if(F.fresas%10===0)save();}
       const rr=F.r*.8;if(m.x+rr>c.x&&m.x-rr<c.x+c.w&&(m.y-rr<c.gy||m.y+rr>c.gy+c.gap))this.crash();});
     F.cols=F.cols.filter(c=>c.x+c.w>-20);if(m.y+F.r*.9>this.ground())this.crash();stepParts(dt);},
   crash(){if(gstate!=='play')return;SFX.hit();burst(F.me.x,F.me.y,'#d4af37',14);if(navigator.vibrate)try{navigator.vibrate(80)}catch(_){}finishG();},
@@ -3464,10 +3467,13 @@ const ADV=[
  {f:5,m:'Sos mi persona favorita'},{f:60},{f:15,m:'Cada día te quiero un poquito más'},{f:80},{f:200,m:'Te amo PA TOda la vida😍'}];
 function advList(){const y=NOW().getFullYear();S.advent[y]=S.advent[y]||[];return S.advent[y];}
 function advCount(){return Math.max(0,...Object.values(S.advent||{}).map(l=>l.length));}
-function renderAdvent(){const box=$('advent');if(!box)return;if(!isXmas()){box.classList.add('hidden');return;}box.classList.remove('hidden');
+function advPending(){if(!isXmas())return false;const day=Math.min(24,NOW().getDate()),op=advList();for(let d=1;d<=day;d++)if(!op.includes(d))return true;return false;}
+function updDot(){const b=document.querySelector('nav button[data-s=color]');if(b)b.classList.toggle('dot',advPending());}
+function renderAdvent(){const box=$('advent');if(!box)return;if(!isXmas()){box.classList.add('hidden');updDot();return;}box.classList.remove('hidden');
   const day=NOW().getDate(),op=advList(),g=$('advGrid');g.innerHTML='';
   $('advTitle').textContent=day===25?'🎄 ¡Feliz Navidad, mi amor!':'🎁 Calendario de adviento';
   $('advSub').textContent=day<=24?'Una cajita por día hasta Nochebuena. Si te olvidás de un día, la podés abrir después 💗':`Abriste ${op.length} de 24 cajitas`;
+  updDot();
   for(let d=1;d<=24;d++){const b=document.createElement('button'),o=op.includes(d);b.className='adv '+(o?'op':d<=day?'av':'lock')+(d===day&&!o?' today':'');
     b.innerHTML=o?`<span>${d}</span><small>${ADV[d-1].m?'💌':'🍓'}</small>`:d<=day?`<span>${d}</span><small>🎁</small>`:`<span>${d}</span><small>🔒</small>`;
     b.onclick=()=>openAdv(d);g.appendChild(b);}}
