@@ -135,7 +135,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none}
 .buy{margin-top:10px;width:100%;border:none;border-radius:12px;padding:9px 6px;font-family:inherit;font-weight:700;font-size:13px;
   background:linear-gradient(135deg,var(--rose),var(--rose-d));color:#fff;cursor:pointer;box-shadow:inset 0 0 0 1.5px var(--gold-l)}
 .buy.off{background:rgba(28,20,24,.08);color:var(--muted);box-shadow:none}
-.reward{margin-top:8px;text-align:center;font-size:13px;font-weight:600;background:linear-gradient(135deg,#fff8e1,#fde2ec);border:1px solid var(--gold-l);border-radius:14px;padding:8px 10px}
+.reward{margin-top:8px;text-align:center;font-size:13px;font-weight:600;background:linear-gradient(135deg,#fff8e1,var(--tint));border:1px solid var(--gold-l);border-radius:14px;padding:8px 10px}
 .reward small{color:var(--gold-d)}
 .vale{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:16px;background:#fff;border:1.5px solid var(--pink2);margin-bottom:8px;cursor:pointer}
 .vale .ve{font-size:26px}.vale .vt{flex:1;display:flex;flex-direction:column;font-size:14px}.vale .vt small{color:var(--muted);font-size:11px;font-weight:600}
@@ -2962,7 +2962,7 @@ function drawIdle(){if(!W)resize();if(!W)return;items=[];parts=[];draw();}
 const THEMES={
   verde:  {n:'Verde',  e:'🌿',m:'tranquila y fresca',   pink:'#d6efe0',pink2:'#a9dcc0',rose:'#5fb48a',roseD:'#3d8f68',lav:'#e6f4d7',peach:'#fff1d6',cream:'#f7fcf8',tint:'#e6f6ec',muted:'#5b7466'},
   azul:   {n:'Azul',   e:'🌊',m:'en calma',              pink:'#d5e6f7',pink2:'#a9cbef',rose:'#5b9bd5',roseD:'#3a76b3',lav:'#e0dcf7',peach:'#d9f1f4',cream:'#f6faff',tint:'#e4eff9',muted:'#5a6b80'},
-  blanco: {n:'Blanco', e:'☁️',m:'en paz',                pink:'#f3efea',pink2:'#e2d9cf',rose:'#b9a58c',roseD:'#8f7b62',lav:'#f7f3ee',peach:'#fbf3e6',cream:'#ffffff',tint:'#faf7f3',muted:'#7d7268'},
+  blanco: {n:'Blanco', e:'☁️',m:'en paz',                pink:'#f1f2f6',pink2:'#dfe1e8',rose:'#9ea4b5',roseD:'#737a8e',lav:'#fafafc',peach:'#eef0f5',cream:'#ffffff',tint:'#f6f7fa',muted:'#6b6f7e'},
   rosa:   {n:'Rosa',   e:'🌸',m:'dulce y romántica',     pink:'#f9d3e1',pink2:'#f4b3cb',rose:'#e07a9e',roseD:'#c85a82',lav:'#e3d7f6',peach:'#ffe1cf',cream:'#fff7f2',tint:'#fde4ee',muted:'#7a5d69'},
   rojo:   {n:'Rojo',   e:'❤️‍🔥',m:'con mucha pasión',    pink:'#f8d0cf',pink2:'#eeaaa8',rose:'#d9534f',roseD:'#b23a36',lav:'#fbe0e6',peach:'#ffe3d3',cream:'#fff6f4',tint:'#fde6e5',muted:'#7d5554'},
   marron: {n:'Marrón', e:'☕',m:'cozy como un cafecito', pink:'#ead9c8',pink2:'#d6bca2',rose:'#a47551',roseD:'#7f5539',lav:'#f2e6da',peach:'#f6e2cc',cream:'#fbf6f0',tint:'#f5ebe0',muted:'#74604f'},
