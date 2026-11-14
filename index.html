@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="color-scheme" content="only light">
 <meta name="theme-color" content="#f9d3e1">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fragolina">
 <title>Para Fragolina 💗</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -3058,6 +3063,7 @@ tickTogether();setInterval(tickTogether,1000);
 setInterval(()=>{if(document.querySelector('#s-tienda.active')&&!spinning)renderSpin();},30000);
 renderSpin();renderAch();
 
+if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}}
 /* init */
 renderWater();renderNotes();renderShop();updHud();
 setInterval(()=>{if(document.querySelector('#s-agua.active'))renderWater();},60000);
