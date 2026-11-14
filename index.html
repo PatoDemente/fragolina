@@ -339,6 +339,14 @@ body[data-tab=juego] .together,body[data-tab=juego] .cumple{display:none}
       <div class="sub">Cada logro te regala fresitas 🍓</div>
       <div class="ach-grid" id="achs"></div>
     </div>
+    <div class="card">
+      <h2>💾 Copia de seguridad</h2>
+      <div class="sub">Guardá todo (frutillas, logros, notas, vales) en un código para pasarlo a otro navegador o celular</div>
+      <button class="btn btn-rose" id="bkCopy" style="width:100%">📋 Copiar mis datos</button>
+      <textarea id="bkText" rows="3" placeholder="Para restaurar: pegá acá tu código" style="margin-top:12px;font-size:12px;font-family:monospace"></textarea>
+      <button class="btn btn-ink" id="bkRestore" style="width:100%;margin-top:8px">♻️ Restaurar desde el código</button>
+      <div class="msg" id="bkMsg" style="font-size:13px"></div>
+    </div>
   </section>
 </div>
 
@@ -3064,6 +3072,20 @@ setInterval(()=>{if(document.querySelector('#s-tienda.active')&&!spinning)render
 renderSpin();renderAch();
 
 if('serviceWorker' in navigator&&location.protocol==='https:'){try{navigator.serviceWorker.register('sw.js').catch(()=>{});}catch(e){}}
+
+/* ---------- COPIA DE SEGURIDAD ---------- */
+const BK_PREFIX='FRAGOLINA1:';
+function exportCode(){return BK_PREFIX+btoa(unescape(encodeURIComponent(JSON.stringify(S))));}
+function parseCode(t){t=(t||'').trim().replace(/\s+/g,'');if(!t.startsWith(BK_PREFIX))throw 0;
+  const d=JSON.parse(decodeURIComponent(escape(atob(t.slice(BK_PREFIX.length)))));if(!d||!d.game||!d.water)throw 0;return d;}
+$('bkCopy').onclick=async()=>{save();const code=exportCode();$('bkText').value=code;let ok=false;
+  try{await navigator.clipboard.writeText(code);ok=true;}catch(e){}
+  if(!ok){try{$('bkText').select();ok=document.execCommand('copy');}catch(e){}}
+  $('bkMsg').textContent=ok?'✅ ¡Copiado! Ahora pegalo en el otro navegador':'Mantené presionado el código de arriba y copialo a mano';};
+$('bkRestore').onclick=()=>{let d;try{d=parseCode($('bkText').value);}catch(e){$('bkMsg').textContent='🙈 Ese código no es válido';return;}
+  const n=(d.game.total||0).toLocaleString('es');
+  ask(`<div style="font-size:36px">♻️</div>¿Restaurar tus datos?<br><small>${n} 🍓 · ${(d.notes||[]).length} notas · ${(d.vales||[]).length} vales · ${Object.keys(d.ach||{}).length} logros</small><br><small style="color:var(--rose-d)">Reemplaza lo que hay en este navegador</small>`,'Sí, restaurar',()=>{
+    S=d;try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){}mem=d;location.reload();});};
 /* init */
 renderWater();renderNotes();renderShop();updHud();
 setInterval(()=>{if(document.querySelector('#s-agua.active'))renderWater();},60000);
