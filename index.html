@@ -328,6 +328,7 @@ body[data-dir=l] .section.active{animation:inL .32s cubic-bezier(.2,.8,.3,1)}
 .sp-t{font-family:'Playfair Display',serif;font-weight:800;font-size:34px;color:var(--ink)}.sp-t span{color:var(--rose-d);font-style:italic}
 .sp-d{display:flex;gap:6px;margin-top:8px}.sp-d i{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:dot 1s infinite}.sp-d i:nth-child(2){animation-delay:.15s}.sp-d i:nth-child(3){animation-delay:.3s}
 @keyframes dot{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-5px)}}
+body.ingame .toast{top:calc(64px + env(safe-area-inset-top))}
 </style>
 </head>
 <body>
@@ -513,7 +514,7 @@ body[data-dir=l] .section.active{animation:inL .32s cubic-bezier(.2,.8,.3,1)}
 
 <div id="gs" class="gs hidden">
   <canvas id="cv"></canvas>
-  <div class="gs-top"><div class="gs-hud" id="gsHud"></div><button class="gs-btn" id="gsSound">🔊</button><button class="gs-btn" id="gsPause">⏸</button></div>
+  <div class="gs-top"><div class="gs-hud" id="gsHud"></div><button class="gs-btn" id="gsFull" title="Pantalla completa">⛶</button><button class="gs-btn" id="gsSound">🔊</button><button class="gs-btn" id="gsPause">⏸</button></div>
   <div class="gs-ov" id="ovStart"><div class="gs-card"><div class="gs-ic" id="ovIc"></div><h3 id="ovTitle"></h3><p id="ovHelp"></p>
     <button class="btn btn-rose" id="play">¡Jugar!</button><button class="btn btn-ghost" id="ovExit1">Volver</button></div></div>
   <div class="gs-ov hidden" id="ovPause"><div class="gs-card"><div class="gs-ic">⏸</div><h3>Pausa</h3><p>Tus fresitas ya quedaron guardadas 🍓</p>
@@ -3131,7 +3132,6 @@ function setHud(){if(!cur||gstate==='off')return;$('gsHud').innerHTML=cur.hud().
 function updHud(){setHud();const t=$('gTotal');if(t)t.textContent=S.game.total.toLocaleString('es');}
 function showOv(id){['ovStart','ovPause','ovEnd'].forEach(k=>$(k).classList.toggle('hidden',k!==id));$('gsPause').style.visibility=id?'hidden':'visible';}
 function openGame(id){cur=GAMES[id];audio();GS.classList.remove('hidden');document.body.classList.add('ingame');
-  try{const el=document.documentElement;if(!document.fullscreenElement&&el.requestFullscreen)el.requestFullscreen({navigationUI:'hide'}).catch(()=>{});}catch(e){}
   try{if(location.hash!=='#jugando')location.hash='jugando';}catch(e){}
   gstate='ready';$('ovIc').textContent=cur.ic;$('ovTitle').textContent=cur.title;$('ovHelp').innerHTML=cur.help;showOv('ovStart');
   requestAnimationFrame(()=>{gsResize();cur.reset(false);cur.draw();setHud();});}
@@ -3149,7 +3149,12 @@ window.addEventListener('hashchange',()=>{if(location.hash!=='#jugando'&&gstate!
 document.addEventListener('visibilitychange',()=>{if(document.hidden){pauseG();save();}});
 window.addEventListener('pagehide',save);
 $('play').onclick=startGame;$('again').onclick=startGame;$('restart').onclick=startGame;$('resume').onclick=resumeG;
-$('gsPause').onclick=pauseG;$('gsSound').onclick=toggleSound;['quit','quit2','ovExit1'].forEach(k=>$(k).onclick=()=>exitG(false));
+$('gsPause').onclick=pauseG;
+/* Pantalla completa SOLO si ella la pide con el botón ⛶ */
+const fsOK=!!(document.fullscreenEnabled&&document.documentElement.requestFullscreen);
+if(!fsOK)$('gsFull').style.display='none';
+$('gsFull').onclick=()=>{try{if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});else document.documentElement.requestFullscreen({navigationUI:'hide'}).catch(()=>toast('Este navegador no deja usar pantalla completa'));}catch(e){}};
+document.addEventListener('fullscreenchange',()=>{$('gsFull').textContent=document.fullscreenElement?'🗗':'⛶';});$('gsSound').onclick=toggleSound;['quit','quit2','ovExit1'].forEach(k=>$(k).onclick=()=>exitG(false));
 
 /* ---------- FONDOS ---------- */
 function hex2(c){const n=parseInt(c.slice(1),16);return[n>>16,(n>>8)&255,n&255];}
@@ -3221,8 +3226,10 @@ let parts=[];
 function burst(x,y,col,n){for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=60+Math.random()*140;parts.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-60,l:.7,c:col});}}
 function stepParts(dt){for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=400*dt;p.l-=dt;if(p.l<=0)parts.splice(i,1);}}
 function drawParts(){parts.forEach(p=>{ctx.globalAlpha=Math.max(0,p.l/.7);ctx.fillStyle=p.c;ctx.beginPath();ctx.arc(p.x,p.y,3,0,7);ctx.fill();});ctx.globalAlpha=1;}
-function bigText(t,sub,a){ctx.save();ctx.globalAlpha=Math.min(1,a);ctx.textAlign='center';ctx.font='800 34px "Playfair Display",serif';ctx.lineWidth=5;ctx.strokeStyle='#fff';
-  ctx.strokeText(t,W/2,H*.36);ctx.fillStyle='#c85a82';ctx.fillText(t,W/2,H*.36);if(sub){ctx.font='700 14px Quicksand,sans-serif';ctx.fillStyle='#a8842a';ctx.strokeText(sub,W/2,H*.36+24);ctx.fillText(sub,W/2,H*.36+24);}ctx.restore();}
+/* Cartel de nivel/zona: arriba, chico y semitransparente, para no tapar la partida */
+function bigText(t,sub,a){const y=Math.max(86,H*.12);ctx.save();ctx.globalAlpha=Math.min(1,a)*.95;ctx.textAlign='center';ctx.font='800 24px "Playfair Display",serif';
+  const w=Math.min(W-30,ctx.measureText(t).width+44),h=sub?54:38;ctx.fillStyle='rgba(255,255,255,.82)';ctx.beginPath();ctx.roundRect?ctx.roundRect(W/2-w/2,y-26,w,h,18):ctx.rect(W/2-w/2,y-26,w,h);ctx.fill();
+  ctx.fillStyle='#c85a82';ctx.fillText(t,W/2,y);if(sub){ctx.font='700 12px Quicksand,sans-serif';ctx.fillStyle='#a8842a';ctx.fillText(sub,W/2,y+18);}ctx.restore();}
 function addFresas(n,caught){S.game.total+=n;if(caught)S.game.caught=(S.game.caught||0)+caught;}
 
 /* ---------- JUEGO 1: ATRAPA FRESITAS ---------- */
@@ -3264,28 +3271,41 @@ function jPlat(y){const d=J.climb/(H*30),w=W*clamp(.24-d*.03,.17,.24);
   const mp=(J.climb+(H*.42-y))/(H*.1);const p={skin:WORLDS[wIdx(Math.max(0,mp))].skin,x:w/2+Math.random()*(W-w),y,w,t:Math.random()<Math.min(.35,d*.5)?'m':'n',vx:(Math.random()<.5?-1:1)*W*(.12+Math.random()*.1),fruit:Math.random()<.32,spring:Math.random()<.07,sc:0,broken:0};
   if(p.spring)p.fruit=false;return p;}
 const G_JUMP={id:'jump',ic:'☁️',title:'Mochita salta',help:'Deslizá el dedo a los costados para mover a Mochita 👈👉<br>Subí desde su casita hasta el espacio 🚀 y juntá 🍓<br>Las nubes con resorte 🌀 te tiran más alto',
-  reset(count){J.dx=null;J.r=clamp(W*.07,22,30);J.g=H*2.2;J.jv=-Math.sqrt(2*J.g*H*.26);J.climb=0;J.fresas=0;parts=[];
+  reset(count){J.dx=null;J.r=clamp(W*.07,22,30);J.g=H*2.2;J.jv=-Math.sqrt(2*J.g*H*.26);J.climb=0;J.fresas=0;parts=[];fx=[];J.dead=0;J.acc=0;J.happy=0;J.lastM=-1;
     J.me={x:W/2,y:H*.78,vy:J.jv,tx:W/2,sq:0};J.stage=0;J.flash=0;J.pl=[{skin:'ground',x:W/2,y:H*.9,w:W*3,t:'n',vx:0,fruit:false,spring:false,sc:0,broken:0}];
     let y=H*.9;while(y>-H*.2){y-=H*(.09+Math.random()*.06);J.pl.push(jPlat(y));}J.top=y;
     if(count){S.games.jump.plays++;save();}},
   pointer(t,x){if(t==='down'){J.dx=x;J.px=J.me.tx;}else if(t==='move'&&J.dx!=null){J.me.tx=clamp(J.px+(x-J.dx)*1.2,J.r,W-J.r);}else if(t==='up')J.dx=null;},
-  update(dt){const m=J.me;m.x+=(m.tx-m.x)*Math.min(1,dt*10);m.sq=Math.max(0,m.sq-dt*4);const py=m.y;m.vy+=J.g*dt;m.y+=m.vy*dt;
-    J.pl.forEach(p=>{if(p.sc)p.sc=Math.max(0,p.sc-dt*4);if(p.t==='m'){p.x+=p.vx*dt;if(p.x<p.w/2||p.x>W-p.w/2)p.vx*=-1;}if(p.t==='b'&&p.broken)p.broken+=dt;});
-    if(m.vy>0)for(const p of J.pl){if(p.t==='b'&&p.broken)continue;const feet=J.r*.9;
-      if(py+feet<=p.y+2&&m.y+feet>=p.y&&Math.abs(m.x-p.x)<p.w/2+J.r*.4){m.y=p.y-feet;m.vy=p.spring?J.jv*1.65:J.jv;m.sq=1;p.spring?SFX.level():SFX.jump();
-        if(p.spring){p.sc=1;burst(p.x,p.y-18,'#f2c94c',10);}if(p.t==='b'){p.broken=.001;}break;}}
-    J.pl.forEach(p=>{if(p.fruit&&Math.hypot(m.x-p.x,m.y-(p.y-J.r*1.1))<J.r*1.3){p.fruit=false;J.fresas++;addFresas(1,1);SFX.pop();burst(p.x,p.y-J.r,'#e8456b',8);setHud();if(J.fresas%10===0)save();}});
-    if(m.y<H*.42){const s=H*.42-m.y;m.y+=s;J.climb+=s;J.pl.forEach(p=>p.y+=s);J.top+=s;const mm=G_JUMP.meters();if(mm!==J.lastM){J.lastM=mm;setHud();}}
-    J.pl=J.pl.filter(p=>p.y<H+30&&!(p.t==='b'&&p.broken>.4));
+  /* Paso a paso fijo: la física es igual a 30, 60 o 120 cuadros por segundo */
+  update(dt){J.acc=(J.acc||0)+dt;const h=1/120;let n=0;while(J.acc>=h&&n<10){this.step(h);J.acc-=h;n++;if(gstate!=='play')return;}
+    stepFx(dt);J.happy=Math.max(0,(J.happy||0)-dt);J.flash=Math.max(0,J.flash-dt);},
+  step(dt){const m=J.me;m.x+=(m.tx-m.x)*Math.min(1,dt*10);m.sq=Math.max(0,m.sq-dt*4);const py=m.y;m.vy+=J.g*dt;m.y+=m.vy*dt;
+    J.pl.forEach(p=>{if(p.sc)p.sc=Math.max(0,p.sc-dt*3);if(p.t==='m'){p.x+=p.vx*dt;if(p.x<p.w/2||p.x>W-p.w/2)p.vx*=-1;}if(p.t==='b'&&p.broken)p.broken+=dt;});
+    const feet=J.r*.95;
+    if(m.vy>0)for(const p of J.pl){if(p.t==='b'&&p.broken)continue;
+      /* el resorte solo impulsa si Mochita cae ENCIMA del resorte; si no, es una nube normal */
+      const onSpring=p.spring&&Math.abs(m.x-p.x)<SPRING_W*.5+J.r*.45,top=onSpring?p.y-SPRING_H*.75:p.y;
+      if(py+feet<=top+2&&m.y+feet>=top&&Math.abs(m.x-p.x)<p.w/2+J.r*.35){m.y=top-feet;m.vy=onSpring?J.jv*1.65:J.jv;m.sq=1;
+        if(onSpring){p.sc=1;SFX.level();sparkle(p.x,top);}else{SFX.jump();dust(m.x,top);}
+        if(p.t==='b')p.broken=.001;break;}}
+    J.pl.forEach(p=>{if(!p.fruit)return;const fy=p.y-J.r*1.15+Math.sin(T*3+p.x)*3;
+      if(Math.hypot(m.x-p.x,(m.y)-fy)<J.r*1.25){p.fruit=false;J.fresas++;addFresas(1,1);SFX.pop();sparkle(p.x,fy);J.happy=.6;setHud();if(J.fresas%10===0)save();}});
+    if(m.y<H*.42){const s=H*.42-m.y;m.y+=s;J.climb+=s;J.pl.forEach(p=>p.y+=s);fx.forEach(f=>f.y+=s);J.top+=s;const mm=G_JUMP.meters();if(mm!==J.lastM){J.lastM=mm;setHud();}}
+    J.pl=J.pl.filter(p=>p.y<H+30&&!(p.t==='b'&&p.broken>.6));
     while(J.top>-H*.1){const d=J.climb/(H*30);J.top-=H*(.09+Math.random()*Math.min(.1,.05+d*.05));J.pl.push(jPlat(J.top));
       if(Math.random()<Math.min(.3,d*.4)){const b=jPlat(J.top+H*.05);b.t='b';b.fruit=false;b.spring=false;J.pl.push(b);}}
-    const wi=wIdx(jMeters());if(wi!==J.stage){J.stage=wi;J.flash=2.4;SFX.level();if(wi>(S.games.jump.world||0)){S.games.jump.world=wi;save();}}J.flash=Math.max(0,J.flash-dt);
-    stepParts(dt);if(m.y>H+J.r*2){finishG();}},
+    const wi=wIdx(jMeters());if(wi!==J.stage){J.stage=wi;J.flash=2.4;SFX.level();if(wi>(S.games.jump.world||0)){S.games.jump.world=wi;save();}}
+    if(m.y>H+J.r*2){J.dead=1;finishG();}},
   meters(){return Math.floor(J.climb/(H*.1));},
-  draw(){spaceBg();const k=Math.min(1,WORLDS[J.stage].stars);
-    J.pl.forEach(pl=>{ctx.globalAlpha=pl.t==='b'?Math.max(0,1-pl.broken*2.5):1;platDraw(pl);ctx.globalAlpha=1;
-      if(pl.spring)springDraw(pl.x,pl.y-6,pl.sc);if(pl.fruit){halo(pl.x,pl.y-J.r*1.1,13,k);strawberry(pl.x,pl.y-J.r*1.1,13,T*2+pl.x);}});
-    drawParts();drawMochita(ctx,J.me.x,J.me.y,J.r,{sq:J.me.sq*.15});
+  draw(){spaceBg();const k=Math.min(1,WORLDS[J.stage].stars),imgSkin=s=>s==='cloud'||s==='sunset'||s==='lilac';
+    J.pl.forEach(pl=>{if(!(imgSkin(pl.skin)&&cloudImgPlat(pl))){ctx.globalAlpha=pl.t==='b'?Math.max(0,1-pl.broken*2.5):1;platDraw(pl);ctx.globalAlpha=1;}
+      if(pl.spring)springImg(pl.x,pl.y,pl.sc);
+      if(pl.fruit){const fy=pl.y-J.r*1.15+Math.sin(T*3+pl.x)*3;halo(pl.x,fy,12,k);fruitImg(pl.x,fy,26);}});
+    drawFx();drawParts();const m=J.me,v=m.vy/Math.abs(J.jv);
+    let pose=J.dead?'triste':J.happy>0?'feliz':m.sq>.5?'base':v<-.3?'sube':v>.3?'cae':'base';
+    if(pose==='base'&&(T%3.4)<.13)pose='parpadeo';
+    const stretch=v<0?-Math.min(.07,-v*.07):0,sq=m.sq>0?m.sq*.16:stretch;
+    drawMochitaSprite(ctx,m.x,m.y,J.r,{pose,sq,tilt:clamp((m.tx-m.x)*.004,-.18,.18)});
     if(gstate==='play'&&J.flash>0)bigText(WORLDS[J.stage].n,J.stage?`¡llegaste a ${J.stage*100} m! ✨`:'',J.flash);},
   hud(){return[`${WORLDS[J.stage||0].n.split(' ')[0]} ${this.meters()} m`,`🍓 ${J.fresas}`];},
   end(){const m=this.meters(),rec=m>(S.games.jump.best||0);if(rec)S.games.jump.best=m;return{big:m+' m',label:'de altura',rec,extra:`+${J.fresas} 🍓 guardadas`,delay:200};},
@@ -3296,6 +3316,48 @@ function springDraw(x,y,c){const h=20*(1-c*.55)+(c>0?0:Math.sin(T*6)*1.2);
   ctx.lineJoin='round';ctx.strokeStyle=INK;ctx.lineWidth=4.5;coil();ctx.stroke();ctx.strokeStyle='#c9ced6';ctx.lineWidth=2;coil();ctx.stroke();
   ctx.lineWidth=2;ctx.strokeStyle=INK;ctx.fillStyle='#d4af37';ctx.beginPath();ctx.roundRect?ctx.roundRect(x-13,y-h-6,26,7,3):ctx.rect(x-13,y-h-6,26,7);ctx.fill();ctx.stroke();
   ctx.fillStyle='#e0394b';ctx.beginPath();ctx.arc(x,y-h-2.5,2,0,7);ctx.fill();}
+/* ---------- IMÁGENES (ilustraciones de Mochita y objetos) ---------- */
+const IMG={};
+['mochita_base','mochita_parpadeo','mochita_sube','mochita_cae','mochita_feliz','mochita_triste','acc_corona',
+ 'plat_nube','plat_nube_movil','plat_nube_fragil','plat_nube_rota','obj_frutilla','obj_resorte_1','obj_resorte_2']
+ .forEach(n=>{const i=new Image();i.decoding='async';i.onload=()=>{IMG[n]=i;};i.src='img/'+n+'.webp';});
+const hasImg=n=>!!(IMG[n]&&IMG[n].naturalWidth);
+/* Medidas de las imágenes de Mochita (lienzo 256): base del cuerpo en y=230, ancho del cuerpo 139 px.
+   El cuerpo dibujado por código mide 2,16·r de ancho, así los accesorios caen en el mismo lugar. */
+const MSPR={foot:230,body:139,size:256};
+function drawMochitaSprite(c,x,y,r,o){o=o||{};const pose='mochita_'+(o.pose||'base');
+  if(!hasImg(pose))return drawMochita(c,x,y,r,o);
+  const eq=o.eq||equipped(),k=2.16*r/MSPR.body,s=MSPR.size*k,sq=o.sq||0;
+  c.save();c.translate(x,y+.95*r);c.rotate(o.tilt||0);c.scale(1+sq,1-sq);c.translate(0,-.95*r);c.lineJoin='round';
+  Object.values(eq).forEach(id=>{const a=ACCBY[id];if(a&&a.back&&ACCD[id]){c.save();c.lineWidth=Math.max(1.5,r*.07);c.strokeStyle=INK;ACCD[id](c,r);c.restore();}});
+  c.drawImage(IMG[pose],-s/2,.95*r-MSPR.foot*k,s,s);
+  if(!eq.head&&hasImg('acc_corona')){const cw=.78*r;c.drawImage(IMG.acc_corona,-cw/2,-.78*r-cw,cw,cw);}
+  ['neck','face','head','special'].forEach(kk=>{const id=eq[kk],a=ACCBY[id];if(a&&!a.back&&ACCD[id]){c.save();c.lineWidth=Math.max(1.5,r*.07);c.strokeStyle=INK;ACCD[id](c,r);c.restore();}});
+  c.restore();}
+/* Nubes teñidas por zona: se pintan una sola vez y se reutilizan */
+const TINTS={};
+function tinted(name,col,a){const key=name+col+a;if(TINTS[key])return TINTS[key];if(!hasImg(name))return null;const im=IMG[name],c=document.createElement('canvas');
+  c.width=im.naturalWidth;c.height=im.naturalHeight;const x=c.getContext('2d');x.drawImage(im,0,0);x.globalCompositeOperation='source-atop';x.globalAlpha=a;x.fillStyle=col;x.fillRect(0,0,c.width,c.height);
+  return TINTS[key]=c;}
+const PLAT_TOP=.065;            // la parte pisable de la nube está al 6,5 % del alto de la imagen
+const SPRING_H=30,SPRING_W=24;  // resorte en pantalla (px lógicos)
+function cloudImgPlat(p){const kind=p.t==='m'?'plat_nube_movil':p.t==='b'?(p.broken?'plat_nube_rota':'plat_nube_fragil'):'plat_nube';
+  const tint=p.skin==='sunset'?['#ffb08f',.22]:p.skin==='lilac'?['#a993ee',.22]:null;
+  const im=tint?tinted(kind,tint[0],tint[1]):(hasImg(kind)?IMG[kind]:null);if(!im)return false;
+  const h=p.w*(im.height/im.width),fall=p.broken?p.broken*90:0;
+  ctx.fillStyle='rgba(90,40,80,.10)';ctx.beginPath();ctx.ellipse(p.x,p.y+h*.95+fall,p.w*.42,h*.16,0,0,7);ctx.fill();
+  ctx.drawImage(im,p.x-p.w/2,p.y-h*PLAT_TOP+fall,p.w,h);return true;}
+function springImg(x,y,sc){const n=sc>.25?'obj_resorte_2':'obj_resorte_1';if(!hasImg(n)){springDraw(x,y-6,sc);return;}
+  const im=IMG[n],h=SPRING_W*im.height/im.width;ctx.drawImage(im,x-SPRING_W/2,y-h+2,SPRING_W,h);}
+function fruitImg(x,y,s){if(!hasImg('obj_frutilla')){strawberry(x,y,s*.5,T*2+x);return;}ctx.drawImage(IMG.obj_frutilla,x-s/2,y-s/2,s,s);}
+/* Efectos: polvito al aterrizar y destellos al juntar */
+let fx=[];
+function dust(x,y){for(let i=0;i<6;i++)fx.push({t:'d',x:x+(i-2.5)*6,y,vx:(i-2.5)*18,vy:-10-Math.random()*15,l:.45,s:3+Math.random()*3});}
+function sparkle(x,y){for(let i=0;i<9;i++){const a=i/9*Math.PI*2;fx.push({t:'s',x,y,vx:Math.cos(a)*90,vy:Math.sin(a)*90-30,l:.55,s:3+Math.random()*2.5,c:i%3?'#fff3b0':'#ffffff'});}}
+function stepFx(dt){for(let i=fx.length-1;i>=0;i--){const f=fx[i];f.x+=f.vx*dt;f.y+=f.vy*dt;f.vx*=.92;f.vy*=.92;f.l-=dt;if(f.l<=0)fx.splice(i,1);}}
+function drawFx(){fx.forEach(f=>{const a=Math.max(0,f.l/.5);if(f.t==='d'){ctx.fillStyle=`rgba(255,255,255,${.7*a})`;ctx.beginPath();ctx.arc(f.x,f.y,f.s*(1.6-a*.6),0,7);ctx.fill();}
+  else{ctx.globalAlpha=a;star4(ctx,f.x,f.y,f.s,f.c);ctx.globalAlpha=1;}});}
+
 /* ---------- MOCHITA SALTA: viaje de la casita al espacio ---------- */
 /* Cada 100 m cambia el escenario. top/bot = colores del cielo, skin = cómo se ven las plataformas */
 const WORLDS=[
