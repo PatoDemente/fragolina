@@ -208,6 +208,25 @@ body{transition:background .4s}
 .ach .ar{font-size:11px;font-weight:800;color:var(--gold-d);margin-top:4px}
 .ach .ap{height:5px;border-radius:5px;background:rgba(0,0,0,.07);margin-top:6px;overflow:hidden}
 .ach .ap i{display:block;height:100%;background:linear-gradient(90deg,var(--rose),var(--gold))}
+.chips{display:flex;gap:6px;margin:2px 0 12px;flex-wrap:wrap}
+.chips button{border:1px solid var(--pink2);background:transparent;color:var(--muted);font-family:inherit;font-weight:700;font-size:12.5px;padding:7px 13px;border-radius:999px;cursor:pointer}
+.chips button.on{background:var(--rose);border-color:var(--rose);color:#fff}
+.ach-list{display:flex;flex-direction:column;gap:8px}
+.achr{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.75);border:1px solid var(--pink2)}
+.achr .ae{font-size:26px;width:34px;text-align:center;flex:none;filter:grayscale(1) opacity(.45)}
+.achr.on .ae{filter:none}
+.achr.on{background:var(--tint)}
+.achr .ab{flex:1;min-width:0}
+.achr .an{font-weight:800;font-size:13.5px;line-height:1.2}
+.achr .ad{font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.25;margin-top:1px}
+.achr .ap{height:6px;border-radius:6px;background:rgba(0,0,0,.07);margin-top:6px;overflow:hidden}
+.achr .ap i{display:block;height:100%;background:var(--rose)}
+.achr .anum{font-size:11px;font-weight:700;color:var(--muted);margin-top:3px}
+.achr .ar{flex:none;font-size:12px;font-weight:800;color:var(--rose-d);text-align:right;white-space:nowrap}
+.achr.on .ar{color:#3c9a6a}
+.ach-empty{text-align:center;color:var(--muted);font-size:13px;font-weight:600;padding:14px 0}
+.item .need{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--muted);margin-top:8px}
+.item .need.ok{color:#3c9a6a}
 body[data-tab=juego] .together,body[data-tab=juego] .cumple{display:none}
 
 body.ingame{overflow:hidden}
@@ -329,6 +348,33 @@ body[data-dir=l] .section.active{animation:inL .32s cubic-bezier(.2,.8,.3,1)}
 .sp-d{display:flex;gap:6px;margin-top:8px}.sp-d i{width:8px;height:8px;border-radius:50%;background:var(--gold);animation:dot 1s infinite}.sp-d i:nth-child(2){animation-delay:.15s}.sp-d i:nth-child(3){animation-delay:.3s}
 @keyframes dot{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-5px)}}
 body.ingame .toast{top:calc(64px + env(safe-area-inset-top))}
+
+/* ===== Tanda 3: diseño más liviano ===== */
+.app{position:relative;z-index:1;padding-bottom:calc(112px + env(safe-area-inset-bottom))}
+.hearts i{opacity:.22}
+.hearts.snow i{opacity:.5}
+.card{border:1px solid rgba(255,255,255,.9);box-shadow:0 6px 18px var(--shadow2)}
+.goldline{background:linear-gradient(90deg,transparent,var(--rose),transparent);opacity:.6}
+header .small{color:var(--rose-d)}
+nav{padding:0 12px calc(8px + env(safe-area-inset-bottom))}
+nav .bar{background:rgba(255,255,255,.92);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--pink2);box-shadow:0 6px 22px var(--shadow2);padding:5px}
+nav button{color:var(--muted);min-height:54px;justify-content:center}
+nav button.on{background:var(--rose);color:#fff;box-shadow:none}
+.balance{border:none;box-shadow:0 6px 16px var(--shadow2)}
+.item{border:1px solid rgba(255,255,255,.9);box-shadow:0 3px 10px var(--shadow2)}
+.item .prog{border:none;background:rgba(0,0,0,.07)}
+.item .prog i{background:var(--rose)}
+.item .ribbon{background:var(--rose-d);color:#fff;border-bottom:none}
+.item.vip{box-shadow:0 0 0 1.5px var(--gold-l),0 8px 20px var(--shadow2)}
+.buy{box-shadow:none}
+.vale{border:1px solid var(--pink2)}
+.modal .box{border:none;box-shadow:0 16px 40px rgba(0,0,0,.18)}
+.vclose{border:1px solid var(--pink2)}
+.ach-count{background:var(--rose);color:#fff;border:none}
+.together{border:none}
+.gear{border:1px solid var(--pink2)}
+.reward{border:1px solid var(--pink2);background:var(--tint)}
+.reward small{color:var(--rose-d)}
 </style>
 </head>
 <body>
@@ -438,20 +484,20 @@ body.ingame .toast{top:calc(64px + env(safe-area-inset-top))}
   <!-- TIENDA -->
   <section class="section" id="s-tienda">
     <div class="balance">
-      <div><div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#f3d6e1">Tus fresitas</div><div class="n" id="sBal">0</div>
+      <div><div style="font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#f3d6e1">Tus frutillas</div><div class="n" id="sBal">0</div>
         <div style="font-size:12px;color:#f3d6e1;margin-top:2px">Nivel máximo alcanzado: <b style="color:var(--gold-l)" id="sLvl">1</b></div></div>
       <div style="font-size:44px">🍓</div>
     </div>
     <div class="card" style="text-align:center">
       <h2 style="justify-content:center">🎰 Ruleta del día</h2>
-      <div class="sub">Una vuelta por día: fresitas o un mensajito 💗</div>
+      <div class="sub">Una vuelta por día: frutillas o un mensajito 💗</div>
       <div class="wheel-wrap"><div class="pointer">▼</div><canvas id="wheel" width="560" height="560"></canvas>
         <button class="wheel-btn" id="spin">GIRAR</button></div>
       <div class="spin-res" id="spinRes"></div>
     </div>
     <div class="card" style="padding:14px 16px">
       <h2>🎁 Tienda de premios</h2>
-      <div class="sub" style="margin:0">Para cada premio necesitás las fresitas <b>y</b> haber llegado a cierto nivel en el juego. Cuando canjeás, te doy un QR para reclamarlo 💗</div>
+      <div class="sub" style="margin:0">Para cada premio necesitás las frutillas <b>y</b> haber llegado a cierto nivel en <b>Atrapa frutillas</b>. Cuando canjeás, te doy un QR para reclamarlo 💗</div>
     </div>
     <div class="shop" id="shop"></div>
     <div class="card" style="margin-top:14px">
@@ -476,8 +522,9 @@ body.ingame .toast{top:calc(64px + env(safe-area-inset-top))}
     </div>
     <div class="card">
       <h2>🏅 Mis logros <span class="ach-count" id="achCount"></span></h2>
-      <div class="sub">Cada logro te regala fresitas 🍓</div>
-      <div class="ach-grid" id="achs"></div>
+      <div class="sub">Cada logro te regala frutillas 🍓</div>
+      <div class="chips" id="achF"><button data-f="todos" class="on">Todos</button><button data-f="prog">En progreso</button><button data-f="ok">Completados</button></div>
+      <div class="ach-list" id="achs"></div>
     </div>
   </section>
 </div>
@@ -517,7 +564,7 @@ body.ingame .toast{top:calc(64px + env(safe-area-inset-top))}
   <div class="gs-top"><div class="gs-hud" id="gsHud"></div><button class="gs-btn" id="gsFull" title="Pantalla completa">⛶</button><button class="gs-btn" id="gsSound">🔊</button><button class="gs-btn" id="gsPause">⏸</button></div>
   <div class="gs-ov" id="ovStart"><div class="gs-card"><div class="gs-ic" id="ovIc"></div><h3 id="ovTitle"></h3><p id="ovHelp"></p>
     <button class="btn btn-rose" id="play">¡Jugar!</button><button class="btn btn-ghost" id="ovExit1">Volver</button></div></div>
-  <div class="gs-ov hidden" id="ovPause"><div class="gs-card"><div class="gs-ic">⏸</div><h3>Pausa</h3><p>Tus fresitas ya quedaron guardadas 🍓</p>
+  <div class="gs-ov hidden" id="ovPause"><div class="gs-card"><div class="gs-ic">⏸</div><h3>Pausa</h3><p>Tus frutillas ya quedaron guardadas 🍓</p>
     <button class="btn btn-rose" id="resume">▶️ Seguir jugando</button><button class="btn btn-ghost" id="restart">🔄 Empezar de nuevo</button><button class="btn btn-ink" id="quit">🏠 Salir</button></div></div>
   <div class="gs-ov hidden" id="ovEnd"><div class="gs-card"><h3 id="endTitle">¡Fin del juego!</h3><div class="score-big" id="endScore">0</div><p id="endMsg"></p><div class="end-extra" id="endExtra"></div>
     <button class="btn btn-rose" id="again">Jugar otra vez</button><button class="btn btn-ink" id="quit2">🏠 Salir</button></div></div>
@@ -2891,13 +2938,13 @@ function renderWater(){
   renderReward();
   if(typeof renderInicio==='function'&&curTab==='inicio')renderInicio();
 }
-/* Premio por agua: +40 fresitas al cumplir la meta (1 vez por día, meta mínima 6 vasos).
+/* Premio por agua: +40 frutillas al cumplir la meta (1 vez por día, meta mínima 6 vasos).
    Cada 7 días seguidos cumpliendo: +250 extra. */
 const W_REWARD=40, W_STREAK_BONUS=250, W_MIN_GOAL=6;
 function streak(){let n=0;const d=NOW();if(!S.water.rewarded[dkey(d)])d.setDate(d.getDate()-1);while(S.water.rewarded[dkey(d)]){n++;d.setDate(d.getDate()-1);}return n;}
 function renderReward(){const k=dkey(NOW()),done=!!S.water.rewarded[k],st=streak();
   $('wReward').innerHTML= S.water.goal<W_MIN_GOAL
-    ? `🍓 Con una meta de ${W_MIN_GOAL} vasos o más ganás fresitas`
+    ? `🍓 Con una meta de ${W_MIN_GOAL} vasos o más ganás frutillas`
     : done ? `✅ Hoy ganaste <b>+${W_REWARD} 🍓</b> · Racha: <b>${st} ${st===1?'día':'días'}</b> 🔥`
            : `Cumplí la meta y ganá <b>+${W_REWARD} 🍓</b> · Racha: <b>${st} ${st===1?'día':'días'}</b> 🔥<br><small>${st>0?'¡Cumplí hoy para que no se corte! · ':''}7 días seguidos = +${W_STREAK_BONUS} 🍓 extra</small>`;}
 $('wPlus').onclick=()=>{const k=dkey(NOW());const now=(S.water.history[k]||0)+1;S.water.history[k]=now;
@@ -2932,7 +2979,7 @@ $('mNo').onclick=()=>{$('modal').classList.add('hidden');delId=null;};
 $('mYes').onclick=()=>{S.notes=S.notes.filter(o=>o.id!==delId);save();renderNotes();$('modal').classList.add('hidden');delId=null;};
 
 /* ---------- TIENDA ---------- */
-/* [emoji, nombre, precio en fresitas, nivel mínimo alcanzado, color] */
+/* [emoji, nombre, precio en frutillas, nivel mínimo alcanzado, color] */
 const ITEMS=[
   ['💋','Vale por besos',300,2,'#fde2ec'],
   ['📸','Foto del pololo',500,3,'#e3d7f6'],
@@ -2964,8 +3011,9 @@ function renderShop(){
   ITEMS.forEach((it,idx)=>{const [e,t,c,lv,bg]=it;const d=document.createElement('div');d.className='item'+(idx===ITEMS.length-1?' vip':'');d.style.background=['var(--tint)','var(--lav)','var(--peach)'][idx%3];
     const p=Math.min(100,Math.round(bal/c*100)), lvOk=bl>=lv, can=lvOk&&bal>=c;
     d.innerHTML=`${idx===ITEMS.length-1?'<div class="ribbon">✦ Premio máximo ✦</div>':''}<div class="e">${e}</div><div class="t">${t}</div><div class="c">🍓 ${c.toLocaleString('es')}</div>
-      <div class="req ${lvOk?'ok':''}">${lvOk?'✓':'🔒'} Llegar al nivel ${lv}</div>
-      <div class="prog"><i style="width:${p}%"></i></div>`;
+      <div class="need ${bal>=c?'ok':''}"><span>🍓 Frutillas</span><span>${Math.min(bal,c).toLocaleString('es')} / ${c.toLocaleString('es')}</span></div>
+      <div class="prog"><i style="width:${p}%"></i></div>
+      <div class="need ${lvOk?'ok':''}"><span>${lvOk?'✓':'🔒'} Nivel en Atrapa</span><span>${Math.min(bl,lv)} / ${lv}</span></div>`;
     const b=document.createElement('button');b.className='buy'+(can?'':' off');
     b.textContent=can?'Canjear':!lvOk?'Nivel '+lv+' 🔒':'Faltan '+(c-bal).toLocaleString('es');
     b.onclick=()=>{if(!can){toast(!lvOk?`Primero llegá al nivel ${lv} 🎮`:`Te faltan ${(c-bal).toLocaleString('es')} 🍓`);return;}askBuy(it);};
@@ -2994,7 +3042,7 @@ function showVale(v,fresh){curVale=v;
   $('vTitle').textContent=v.used?'¡Ya lo disfrutaste!':'¡Buena elección!';
   $('vStamp').classList.toggle('hidden',!v.used);$('vUse').classList.toggle('hidden',v.used);
   $('vHint').textContent=v.used?'Este vale ya fue reclamado 💗':'Mostrale este QR a tu pololo para reclamar tu premio 💗';
-  drawQR(`VALE FRAGOLINA\nPremio: ${ascii(v.t)}\nCodigo: ${v.code}\nFecha: ${fmt(v.d)}\nPrecio: ${v.c} fresitas`);
+  drawQR(`VALE FRAGOLINA\nPremio: ${ascii(v.t)}\nCodigo: ${v.code}\nFecha: ${fmt(v.d)}\nPrecio: ${v.c} frutillas`);
   drawMochiCard();$('vale').classList.remove('hidden');if(fresh)confetti();}
 function drawQR(text){const c=$('qr'),x=c.getContext('2d');let qr;
   try{qr=qrcode(0,'M');qr.addData(text);qr.make();}catch(e){x.clearRect(0,0,c.width,c.height);return;}
@@ -3232,10 +3280,10 @@ function bigText(t,sub,a){const y=Math.max(86,H*.12);ctx.save();ctx.globalAlpha=
   ctx.fillStyle='#c85a82';ctx.fillText(t,W/2,y);if(sub){ctx.font='700 12px Quicksand,sans-serif';ctx.fillStyle='#a8842a';ctx.fillText(sub,W/2,y+18);}ctx.restore();}
 function addFresas(n,caught){S.game.total+=n;if(caught)S.game.caught=(S.game.caught||0)+caught;}
 
-/* ---------- JUEGO 1: ATRAPA FRESITAS ---------- */
+/* ---------- JUEGO 1: ATRAPA FRUTILLAS ---------- */
 const LEVEL_SECS=20;
 const C={dx:null,px:0,P:{x:0,y:0,tx:0,r:30,hit:0,sq:0},items:[],score:0,lives:3,spawnT:0,el:0,lv:1,flash:0};
-const G_CATCH={id:'catch',ic:'🍓',title:'Atrapa fresitas',help:'Deslizá el dedo a los costados para mover a Mochita 👈👉<br>Atrapá las 🍓 · las ✨doradas✨ valen 10<br>y esquivá las ✂️',
+const G_CATCH={id:'catch',ic:'🍓',title:'Atrapa frutillas',help:'Deslizá el dedo a los costados para mover a Mochita 👈👉<br>Atrapá las 🍓 · las ✨doradas✨ valen 10<br>y esquivá las ✂️',
   reset(count){const P=C.P;C.dx=null;C.lastGold=-99;C.items=[];parts=[];C.score=0;C.lives=3;C.spawnT=.6;C.el=0;C.lv=1;C.flash=0;P.r=clamp(W*.08,26,36);P.y=H-P.r-H*.05;P.x=P.tx=W/2;P.hit=0;P.sq=0;
     if(count){S.game.plays++;save();}},
   onResize(){C.P.y=H-C.P.r-H*.05;C.P.x=clamp(C.P.x,C.P.r,W-C.P.r);C.P.tx=C.P.x;},
@@ -3262,7 +3310,7 @@ const G_CATCH={id:'catch',ic:'🍓',title:'Atrapa fresitas',help:'Deslizá el de
     drawParts();const P=C.P;if(!(P.hit>0&&Math.floor(P.hit*10)%2===0))drawMochita(ctx,P.x,P.y,P.r,{sq:P.sq*.12});
     if(gstate==='play'&&C.flash>0)bigText('Nivel '+C.lv,'¡más rápido! ✨',C.flash);},
   hud(){return[`🍓 ${C.score}`,'❤️'.repeat(clamp(C.lives,0,3))+'🤍'.repeat(clamp(3-C.lives,0,3)),`⭐ ${C.lv}`];},
-  end(){const rec=C.score>S.game.best;if(rec)S.game.best=C.score;return{big:C.score,label:'fresitas atrapadas',rec,extra:`+${C.score} 🍓 guardadas`};},
+  end(){const rec=C.score>S.game.best;if(rec)S.game.best=C.score;return{big:C.score,label:'frutillas atrapadas',rec,extra:`+${C.score} 🍓 guardadas`};},
   bestTxt(){return S.game.best?`Récord: ${S.game.best} 🍓`:'¡Jugá tu primera partida!';}};
 
 /* ---------- JUEGO 2: MOCHITA SALTA ---------- */
@@ -3605,25 +3653,25 @@ $('sndBtn').onclick=toggleSound;
    pink=fondo principal · pink2=bordes suaves · rose/roseD=acento · lav/peach=manchas del fondo
    cream=fondo final · tint=tarjetas claras · muted=texto secundario. Dorado y negro fijos en todos. */
 const THEMES={
-  verde:  {n:'Verde',  e:'🌿',m:'tranquila y fresca',   pink:'#d6efe0',pink2:'#a9dcc0',rose:'#5fb48a',roseD:'#3d8f68',lav:'#e6f4d7',peach:'#fff1d6',cream:'#f7fcf8',tint:'#e6f6ec',muted:'#5b7466'},
-  azul:   {n:'Azul',   e:'🌊',m:'en calma',              pink:'#d5e6f7',pink2:'#a9cbef',rose:'#5b9bd5',roseD:'#3a76b3',lav:'#e0dcf7',peach:'#d9f1f4',cream:'#f6faff',tint:'#e4eff9',muted:'#5a6b80'},
-  blanco: {n:'Blanco', e:'☁️',m:'en paz',                pink:'#f1f2f6',pink2:'#dfe1e8',rose:'#9ea4b5',roseD:'#737a8e',lav:'#fafafc',peach:'#eef0f5',cream:'#ffffff',tint:'#f6f7fa',muted:'#6b6f7e'},
-  rosa:   {n:'Rosa',   e:'🌸',m:'dulce y romántica',     pink:'#f9d3e1',pink2:'#f4b3cb',rose:'#e07a9e',roseD:'#c85a82',lav:'#e3d7f6',peach:'#ffe1cf',cream:'#fff7f2',tint:'#fde4ee',muted:'#7a5d69'},
-  rojo:   {n:'Rojo',   e:'❤️‍🔥',m:'con mucha pasión',    pink:'#f8d0cf',pink2:'#eeaaa8',rose:'#d9534f',roseD:'#b23a36',lav:'#fbe0e6',peach:'#ffe3d3',cream:'#fff6f4',tint:'#fde6e5',muted:'#7d5554'},
-  marron: {n:'Marrón', e:'☕',m:'cozy como un cafecito', pink:'#ead9c8',pink2:'#d6bca2',rose:'#a47551',roseD:'#7f5539',lav:'#f2e6da',peach:'#f6e2cc',cream:'#fbf6f0',tint:'#f5ebe0',muted:'#74604f'},
-  violeta:{n:'Violeta',e:'🔮',m:'soñadora',              pink:'#e3d5f5',pink2:'#c9b0ec',rose:'#9b6fd0',roseD:'#7a4fb0',lav:'#f3dcef',peach:'#dde3fa',cream:'#faf6ff',tint:'#efe6fa',muted:'#6d5d80'},
-  naranja:{n:'Naranja',e:'🍊',m:'con mucha energía',     pink:'#fde0c8',pink2:'#f8c49b',rose:'#f08a4b',roseD:'#cf6a2c',lav:'#fff0c9',peach:'#ffd9d0',cream:'#fff8f2',tint:'#fff0e4',muted:'#80614c'}};
+  verde:  {n:'Verde',  e:'🌿',m:'fresco como un jardín',   ink:'#1f3529',pink:'#d6efe0',pink2:'#a9dcc0',rose:'#4fa57b',roseD:'#357f5b',lav:'#e6f4d7',peach:'#fff1d6',cream:'#f7fcf8',tint:'#e6f6ec',muted:'#5b7466'},
+  azul:   {n:'Azul',   e:'🌊',m:'sereno como el mar',              ink:'#1b2b40',pink:'#d5e6f7',pink2:'#a9cbef',rose:'#5b9bd5',roseD:'#3a76b3',lav:'#e0dcf7',peach:'#d9f1f4',cream:'#f6faff',tint:'#e4eff9',muted:'#5a6b80'},
+  blanco: {n:'Blanco', e:'☁️',m:'suave como una nube',                ink:'#272a35',pink:'#f1f2f6',pink2:'#dfe1e8',rose:'#80879a',roseD:'#5a6072',lav:'#fafafc',peach:'#eef0f5',cream:'#ffffff',tint:'#f6f7fa',muted:'#6b6f7e'},
+  rosa:   {n:'Rosa',   e:'🌸',m:'dulce como una frutilla',     ink:'#2e1a24',pink:'#f9d3e1',pink2:'#f4b3cb',rose:'#e07a9e',roseD:'#c85a82',lav:'#e3d7f6',peach:'#ffe1cf',cream:'#fff7f2',tint:'#fde4ee',muted:'#7a5d69'},
+  rojo:   {n:'Rojo',   e:'❤️‍🔥',m:'intenso como una cereza',    ink:'#3a1a1a',pink:'#f8d0cf',pink2:'#eeaaa8',rose:'#d9534f',roseD:'#b23a36',lav:'#fbe0e6',peach:'#ffe3d3',cream:'#fff6f4',tint:'#fde6e5',muted:'#7d5554'},
+  marron: {n:'Marrón', e:'☕',m:'cálido como un cafecito', ink:'#33241a',pink:'#ead9c8',pink2:'#d6bca2',rose:'#a47551',roseD:'#7f5539',lav:'#f2e6da',peach:'#f6e2cc',cream:'#fbf6f0',tint:'#f5ebe0',muted:'#74604f'},
+  violeta:{n:'Violeta',e:'🔮',m:'mágico como un atardecer',              ink:'#271c3a',pink:'#e3d5f5',pink2:'#c9b0ec',rose:'#9b6fd0',roseD:'#7a4fb0',lav:'#f3dcef',peach:'#dde3fa',cream:'#faf6ff',tint:'#efe6fa',muted:'#6d5d80'},
+  naranja:{n:'Naranja',e:'🍊',m:'alegre como una mandarina',     ink:'#3a2416',pink:'#fde0c8',pink2:'#f8c49b',rose:'#e47a36',roseD:'#bf5c1d',lav:'#fff0c9',peach:'#ffd9d0',cream:'#fff8f2',tint:'#fff0e4',muted:'#80614c'}};
 const rgba=(h,a)=>{const n=parseInt(h.slice(1),16);return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`;};
 function applyTheme(k){setTimeout(()=>{try{drawWheel()}catch(e){}},0);const t=THEMES[k]||THEMES.rosa,r=document.documentElement.style;
   r.setProperty('--pink',t.pink);r.setProperty('--pink2',t.pink2);r.setProperty('--rose',t.rose);r.setProperty('--rose-d',t.roseD);
-  r.setProperty('--lav',t.lav);r.setProperty('--peach',t.peach);r.setProperty('--cream',t.cream);r.setProperty('--tint',t.tint);r.setProperty('--muted',t.muted);
+  r.setProperty('--lav',t.lav);r.setProperty('--peach',t.peach);r.setProperty('--cream',t.cream);r.setProperty('--tint',t.tint);r.setProperty('--muted',t.muted);r.setProperty('--ink',t.ink||'#1c1418');r.setProperty('--ink2',t.ink||'#2b2026');
   r.setProperty('--overlay',rgba(t.tint,.9));r.setProperty('--shadow',rgba(t.roseD,.35));r.setProperty('--shadow2',rgba(t.roseD,.15));
   const mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('content',t.pink);}
 function renderThemes(){const g=$('themes');g.innerHTML='';const cur=THEMES[S.theme]?S.theme:'rosa';
   Object.entries(THEMES).forEach(([k,t])=>{const b=document.createElement('button');b.className='sw'+(k===cur?' on':'');
     b.innerHTML=`<span class="dot" style="background:linear-gradient(135deg,${t.pink} 0%,${t.rose} 60%,${t.roseD} 100%)"></span>${t.n}${k===cur?'<span class="ck">✦</span>':''}`;
-    b.onclick=()=>{S.theme=k;if(!S.colors.includes(k))S.colors.push(k);save();applyTheme(k);renderThemes();toast(`${t.e} Hoy te sentís ${t.n.toLowerCase()}`);};g.appendChild(b);});
-  const t=THEMES[cur];$('mood').innerHTML=`Hoy te sentís<b>${t.m} ${t.e}</b>`;}
+    b.onclick=()=>{S.theme=k;if(!S.colors.includes(k))S.colors.push(k);save();applyTheme(k);renderThemes();toast(`${t.e} Color de hoy: ${t.n}`);};g.appendChild(b);});
+  const t=THEMES[cur];$('mood').innerHTML=`Color de hoy<b>${t.n} ${t.e}</b><small style="display:block;margin-top:4px;color:var(--pink2)">${t.m}</small>`;}
 applyTheme(S.theme);renderThemes();
 
 
@@ -3688,9 +3736,9 @@ const ACH=[
  ['agua30','🧜‍♀️','Sirenita','30 días con la meta cumplida',goalDays,30,300],
  ['nota1','💌','Primera notita','Guardá tu primera nota',()=>S.notes.length,1,10],
  ['nota25','📚','Diario de amor','Tené 25 notas guardadas',()=>S.notes.length,25,100],
- ['fresa1','🍓','Primera fresita','Atrapá tu primera fresita',()=>S.game.caught||0,1,5],
- ['fresa500','🧺','Canasta llena','Atrapá 500 fresitas',()=>S.game.caught||0,500,100],
- ['fresa5k','🍰','Reina de las fresitas','Atrapá 5.000 fresitas',()=>S.game.caught||0,5000,500],
+ ['fresa1','🍓','Primera frutilla','Atrapá tu primera frutilla',()=>S.game.caught||0,1,5],
+ ['fresa500','🧺','Canasta llena','Atrapá 500 frutillas',()=>S.game.caught||0,500,100],
+ ['fresa5k','🍰','Reina de las frutillas','Atrapá 5.000 frutillas',()=>S.game.caught||0,5000,500],
  ['lv5','⭐','Nivel 5','Llegá al nivel 5',()=>S.game.bestLevel||1,5,50],
  ['lv10','🌟','Nivel 10','Llegá al nivel 10',()=>S.game.bestLevel||1,10,200],
  ['lv15','💫','Leyenda','Llegá al nivel 15',()=>S.game.bestLevel||1,15,500],
@@ -3712,13 +3760,19 @@ function checkAch(){if(achBusy||!S.ach)return;achBusy=true;const news=[];
   try{ACH.forEach(([id,e,n,d,f,goal,rw])=>{if(!S.ach[id]&&f()>=goal){S.ach[id]=Date.now();S.game.total+=rw;news.push(`${e} Logro: ${n} +${rw} 🍓`);}});}catch(e){}
   achBusy=false;
   news.forEach((t,i)=>setTimeout(()=>{toast(t);try{SFX.level()}catch(e){}if(typeof updHud==='function')updHud();},900+i*2000));}
+let ACHF='todos';
 function renderAch(){const g=$('achs');g.innerHTML='';let on=0;
-  ACH.forEach(([id,e,n,d,f,goal,rw])=>{const done=!!S.ach[id];if(done)on++;const v=Math.min(goal,f());
-    const el=document.createElement('div');el.className='ach'+(done?' on':'');
-    el.innerHTML=`<div class="ae">${e}</div><div class="an">${n}</div><div class="ad">${d}</div><div class="ar">${done?'✓ Ganado · ':''}+${rw} 🍓</div>`+
-      (done?'':`<div class="ap"><i style="width:${Math.round(v/goal*100)}%"></i></div><div class="ad" style="min-height:0;margin-top:3px">${v.toLocaleString('es')} / ${goal.toLocaleString('es')}</div>`);
+  const rows=ACH.map(([id,e,n,d,f,goal,rw])=>{const done=!!S.ach[id];if(done)on++;let v=0;try{v=Math.min(goal,f()||0);}catch(_){}return{e,n,d,goal,rw,done,v,r:done?2:v/goal};});
+  rows.sort((a,b)=>a.done-b.done||(b.r-a.r));
+  const list=rows.filter(x=>ACHF==='todos'||(ACHF==='ok'?x.done:!x.done));
+  list.forEach(x=>{const el=document.createElement('div');el.className='achr'+(x.done?' on':'');
+    el.innerHTML=`<div class="ae">${x.e}</div><div class="ab"><div class="an">${x.n}</div><div class="ad">${x.d}</div>`+
+      (x.done?'':`<div class="ap"><i style="width:${Math.round(x.v/x.goal*100)}%"></i></div><div class="anum">${x.v.toLocaleString('es')} de ${x.goal.toLocaleString('es')}</div>`)+
+      `</div><div class="ar">${x.done?'✓ Ganado<br>':''}+${x.rw} 🍓</div>`;
     g.appendChild(el);});
+  if(!list.length)g.innerHTML=`<div class="ach-empty">${ACHF==='ok'?'Todavía no hay logros completados… ¡ya llegan! 💗':'¡Completaste todos! 👑'}</div>`;
   $('achCount').textContent=`${on}/${ACH.length}`;}
+document.querySelectorAll('#achF button').forEach(b=>b.onclick=()=>{ACHF=b.dataset.f;document.querySelectorAll('#achF button').forEach(x=>x.classList.toggle('on',x===b));renderAch();});
 tickTogether();setInterval(tickTogether,1000);
 setInterval(()=>{if(document.querySelector('#s-tienda.active')&&!spinning)renderSpin();},30000);
 renderSpin();renderAch();
