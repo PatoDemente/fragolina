@@ -3348,7 +3348,7 @@ function cloudImgPlat(p){const kind=p.t==='m'?'plat_nube_movil':p.t==='b'?(p.bro
   ctx.fillStyle='rgba(90,40,80,.10)';ctx.beginPath();ctx.ellipse(p.x,p.y+h*.95+fall,p.w*.42,h*.16,0,0,7);ctx.fill();
   ctx.drawImage(im,p.x-p.w/2,p.y-h*PLAT_TOP+fall,p.w,h);return true;}
 /* Plataformas del espacio (ilustradas). top = dónde está la parte pisable dentro de la imagen */
-const SPACE_IMG={meteor:['plat_meteorito',0.015],ship:['plat_nave',0.094],crystal:['plat_cristal',0.0],alien:['plat_alien',0.0],starbar:['plat_estrellas',0.066]};
+const SPACE_IMG={meteor:['plat_meteorito',0.01],ship:['plat_nave',0.057],crystal:['plat_cristal',0.0],alien:['plat_alien',0.0],starbar:['plat_estrellas',0.041]};
 function spaceImgPlat(p){const d=SPACE_IMG[p.skin];if(!d||!hasImg(d[0]))return false;const im=IMG[d[0]],h=p.w*im.height/im.width,brk=p.t==='b',fall=p.broken?p.broken*90:0;
   ctx.save();if(brk)ctx.globalAlpha=p.broken?Math.max(0,1-p.broken*2):.78;
   ctx.drawImage(im,p.x-p.w/2,p.y-h*d[1]+fall,p.w,h);
