@@ -3268,7 +3268,7 @@ const G_CATCH={id:'catch',ic:'🍓',title:'Atrapa fresitas',help:'Deslizá el de
 /* ---------- JUEGO 2: MOCHITA SALTA ---------- */
 const J={me:{x:0,y:0,vy:0,tx:0,sq:0},pl:[],r:24,g:0,jv:0,climb:0,fresas:0,top:0};
 function jPlat(y){const d=J.climb/(H*30),w=W*clamp(.24-d*.03,.17,.24);
-  const mp=(J.climb+(H*.42-y))/(H*.1);const p={skin:WORLDS[wIdx(Math.max(0,mp))].skin,x:w/2+Math.random()*(W-w),y,w,t:Math.random()<Math.min(.35,d*.5)?'m':'n',vx:(Math.random()<.5?-1:1)*W*(.12+Math.random()*.1),fruit:Math.random()<.32,spring:Math.random()<.07,sc:0,broken:0};
+  const mp=(J.climb+(H*.42-y))/(H*.1);const p={ph:Math.random()*6.28,skin:WORLDS[wIdx(Math.max(0,mp))].skin,x:w/2+Math.random()*(W-w),y,w,t:Math.random()<Math.min(.35,d*.5)?'m':'n',vx:(Math.random()<.5?-1:1)*W*(.12+Math.random()*.1),fruit:Math.random()<.32,spring:Math.random()<.07,sc:0,broken:0};
   if(p.spring)p.fruit=false;return p;}
 const G_JUMP={id:'jump',ic:'☁️',title:'Mochita salta',help:'Deslizá el dedo a los costados para mover a Mochita 👈👉<br>Subí desde su casita hasta el espacio 🚀 y juntá 🍓<br>Las nubes con resorte 🌀 te tiran más alto',
   reset(count){J.dx=null;J.r=clamp(W*.07,22,30);J.g=H*2.2;J.jv=-Math.sqrt(2*J.g*H*.26);J.climb=0;J.fresas=0;parts=[];fx=[];J.dead=0;J.acc=0;J.happy=0;J.lastM=-1;
@@ -3288,7 +3288,7 @@ const G_JUMP={id:'jump',ic:'☁️',title:'Mochita salta',help:'Deslizá el dedo
       if(py+feet<=top+2&&m.y+feet>=top&&Math.abs(m.x-p.x)<p.w/2+J.r*.35){m.y=top-feet;m.vy=onSpring?J.jv*1.65:J.jv;m.sq=1;
         if(onSpring){p.sc=1;SFX.level();sparkle(p.x,top);}else{SFX.jump();dust(m.x,top);}
         if(p.t==='b')p.broken=.001;break;}}
-    J.pl.forEach(p=>{if(!p.fruit)return;const fy=p.y-J.r*1.15+Math.sin(T*3+p.x)*3;
+    J.pl.forEach(p=>{if(!p.fruit)return;const fy=p.y-J.r*1.15+Math.sin(T*3+(p.ph||0))*3;
       if(Math.hypot(m.x-p.x,(m.y)-fy)<J.r*1.25){p.fruit=false;J.fresas++;addFresas(1,1);SFX.pop();sparkle(p.x,fy);J.happy=.6;setHud();if(J.fresas%10===0)save();}});
     if(m.y<H*.42){const s=H*.42-m.y;m.y+=s;J.climb+=s;J.pl.forEach(p=>p.y+=s);fx.forEach(f=>f.y+=s);J.top+=s;const mm=G_JUMP.meters();if(mm!==J.lastM){J.lastM=mm;setHud();}}
     J.pl=J.pl.filter(p=>p.y<H+30&&!(p.t==='b'&&p.broken>.6));
@@ -3300,7 +3300,7 @@ const G_JUMP={id:'jump',ic:'☁️',title:'Mochita salta',help:'Deslizá el dedo
   draw(){spaceBg();const k=Math.min(1,WORLDS[J.stage].stars),imgSkin=s=>s==='cloud'||s==='sunset'||s==='lilac';
     J.pl.forEach(pl=>{if(!(imgSkin(pl.skin)&&cloudImgPlat(pl))){ctx.globalAlpha=pl.t==='b'?Math.max(0,1-pl.broken*2.5):1;platDraw(pl);ctx.globalAlpha=1;}
       if(pl.spring)springImg(pl.x,pl.y,pl.sc);
-      if(pl.fruit){const fy=pl.y-J.r*1.15+Math.sin(T*3+pl.x)*3;halo(pl.x,fy,12,k);fruitImg(pl.x,fy,26);}});
+      if(pl.fruit){const fy=pl.y-J.r*1.15+Math.sin(T*3+(pl.ph||0))*3;halo(pl.x,fy,12,k);fruitImg(pl.x,fy,26);}});
     drawFx();drawParts();const m=J.me,v=m.vy/Math.abs(J.jv);
     let pose=J.dead?'triste':J.happy>0?'feliz':m.sq>.5?'base':v<-.3?'sube':v>.3?'cae':'base';
     if(pose==='base'&&(T%3.4)<.13)pose='parpadeo';
