@@ -3298,7 +3298,7 @@ const G_JUMP={id:'jump',ic:'☁️',title:'Mochita salta',help:'Deslizá el dedo
     if(m.y>H+J.r*2){J.dead=1;finishG();}},
   meters(){return Math.floor(J.climb/(H*.1));},
   draw(){spaceBg();const k=Math.min(1,WORLDS[J.stage].stars),imgSkin=s=>s==='cloud'||s==='sunset'||s==='lilac';
-    J.pl.forEach(pl=>{if(!(imgSkin(pl.skin)&&cloudImgPlat(pl))){ctx.globalAlpha=pl.t==='b'?Math.max(0,1-pl.broken*2.5):1;platDraw(pl);ctx.globalAlpha=1;}
+    J.pl.forEach(pl=>{if(!((imgSkin(pl.skin)&&cloudImgPlat(pl))||spaceImgPlat(pl))){ctx.globalAlpha=pl.t==='b'?Math.max(0,1-pl.broken*2.5):1;platDraw(pl);ctx.globalAlpha=1;}
       if(pl.spring)springImg(pl.x,pl.y,pl.sc);
       if(pl.fruit){const fy=pl.y-J.r*1.15+Math.sin(T*3+(pl.ph||0))*3;halo(pl.x,fy,12,k);fruitImg(pl.x,fy,26);}});
     drawFx();drawParts();const m=J.me,v=m.vy/Math.abs(J.jv);
@@ -3319,7 +3319,7 @@ function springDraw(x,y,c){const h=20*(1-c*.55)+(c>0?0:Math.sin(T*6)*1.2);
 /* ---------- IMÁGENES (ilustraciones de Mochita y objetos) ---------- */
 const IMG={};
 ['mochita_base','mochita_parpadeo','mochita_sube','mochita_cae','mochita_feliz','mochita_triste','acc_corona',
- 'plat_nube','plat_nube_movil','plat_nube_fragil','plat_nube_rota','obj_frutilla','obj_resorte_1','obj_resorte_2']
+ 'plat_nube','plat_nube_movil','plat_nube_fragil','plat_nube_rota','plat_meteorito','plat_nave','plat_cristal','plat_alien','plat_estrellas','obj_frutilla','obj_resorte_1','obj_resorte_2']
  .forEach(n=>{const i=new Image();i.decoding='async';i.onload=()=>{IMG[n]=i;};i.src='img/'+n+'.webp';});
 const hasImg=n=>!!(IMG[n]&&IMG[n].naturalWidth);
 /* Medidas de las imágenes de Mochita (lienzo 256): base del cuerpo en y=230, ancho del cuerpo 139 px.
@@ -3347,6 +3347,15 @@ function cloudImgPlat(p){const kind=p.t==='m'?'plat_nube_movil':p.t==='b'?(p.bro
   const h=p.w*(im.height/im.width),fall=p.broken?p.broken*90:0;
   ctx.fillStyle='rgba(90,40,80,.10)';ctx.beginPath();ctx.ellipse(p.x,p.y+h*.95+fall,p.w*.42,h*.16,0,0,7);ctx.fill();
   ctx.drawImage(im,p.x-p.w/2,p.y-h*PLAT_TOP+fall,p.w,h);return true;}
+/* Plataformas del espacio (ilustradas). top = dónde está la parte pisable dentro de la imagen */
+const SPACE_IMG={meteor:['plat_meteorito',0.015],ship:['plat_nave',0.094],crystal:['plat_cristal',0.0],alien:['plat_alien',0.0],starbar:['plat_estrellas',0.066]};
+function spaceImgPlat(p){const d=SPACE_IMG[p.skin];if(!d||!hasImg(d[0]))return false;const im=IMG[d[0]],h=p.w*im.height/im.width,brk=p.t==='b',fall=p.broken?p.broken*90:0;
+  ctx.save();if(brk)ctx.globalAlpha=p.broken?Math.max(0,1-p.broken*2):.78;
+  ctx.drawImage(im,p.x-p.w/2,p.y-h*d[1]+fall,p.w,h);
+  if(brk&&!p.broken){ctx.strokeStyle='rgba(255,255,255,.85)';ctx.lineWidth=1.6;[-.22,.12].forEach(f=>{const x=p.x+f*p.w;ctx.beginPath();ctx.moveTo(x,p.y+1);ctx.lineTo(x+3,p.y+h*.35);ctx.lineTo(x-2,p.y+h*.6);ctx.stroke();});}
+  if(p.t==='m'){ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=1.5;const dir=Math.sign(p.vx)||1,bx=p.x-dir*(p.w/2+4);
+    [-.25,.15].forEach((o,i)=>{ctx.beginPath();ctx.moveTo(bx,p.y+h*(.3+o));ctx.lineTo(bx-dir*(9+i*4),p.y+h*(.3+o));ctx.stroke();});}
+  ctx.restore();return true;}
 function springImg(x,y,sc){const n=sc>.25?'obj_resorte_2':'obj_resorte_1';if(!hasImg(n)){springDraw(x,y-6,sc);return;}
   const im=IMG[n],h=SPRING_W*im.height/im.width;ctx.drawImage(im,x-SPRING_W/2,y-h+2,SPRING_W,h);}
 function fruitImg(x,y,s){if(!hasImg('obj_frutilla')){strawberry(x,y,s*.5,T*2+x);return;}ctx.drawImage(IMG.obj_frutilla,x-s/2,y-s/2,s,s);}
