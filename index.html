@@ -3388,19 +3388,62 @@ let shoot=null;
 function spaceBg(){const m=jMeters(),w=worldMix(m),q=Math.round(m/2);
   cached('jsky',q,()=>{const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,w.top);g.addColorStop(1,w.bot);ctx.fillStyle=g;ctx.fillRect(0,0,W,H);});
   if(w.stars>0){ctx.fillStyle='#fff';const off=(J.climb*.04)%H;JSTARS.forEach(s=>{ctx.globalAlpha=w.stars*(.55+.45*Math.sin(T*2+s.k));ctx.fillRect(s.x*W,(s.y*H+off)%H,s.s*1.5,s.s*1.5);});ctx.globalAlpha=1;
-    if(m>300){if(!shoot&&Math.random()<.006)shoot={x:Math.random()*W,y:Math.random()*H*.5,l:1};
+    if(m>200){if(!shoot&&Math.random()<(m>300?.006:.003))shoot={x:Math.random()*W,y:Math.random()*H*.5,l:1};
       if(shoot){shoot.l-=.025;shoot.x+=6;shoot.y+=3;ctx.strokeStyle=`rgba(255,255,255,${shoot.l})`;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(shoot.x,shoot.y);ctx.lineTo(shoot.x-40,shoot.y-20);ctx.stroke();if(shoot.l<=0)shoot=null;}}}
   if(w.clouds>0){ctx.globalAlpha=.55*w.clouds;CLOUDS.forEach((c,i)=>{const s=c.s*W*.09,x=((c.x0??c.x)+c.v*T*1.2)%1.5*W-W*.25,y=((c.y*H+J.climb*c.s*.25)%(H*1.1)+H*1.1)%(H*1.1)-H*.05;
       ctx.fillStyle=i%2?'#ffe3ef':'#efe3fb';[[0,0,1],[.9,.15,.75],[-.9,.18,.7],[.35,-.45,.7]].forEach(([dx,dy,k])=>{ctx.beginPath();ctx.arc(x+dx*s,y+dy*s,s*k,0,7);ctx.fill();});});ctx.globalAlpha=1;}
   if(m<300&&isXmas()&&typeof drawSnow==='function')drawSnow();
   drawDecor(m);}
+/* ---------- FONDOS ILUSTRADOS DE MOCHITA SALTA ---------- */
+['bg_jardin','bg_castillo_lejano','deco_nube_1','deco_nube_2','deco_nube_3','deco_globo_1','deco_globo_2','deco_arcoiris','deco_pajaritos','deco_tierra',
+ 'deco_luna','deco_saturno','deco_cohete','deco_satelite','deco_planeta_alien','deco_ovni','deco_planeta_caramelo_1','deco_planeta_caramelo_2','deco_planeta_caramelo_3',
+ 'deco_nebulosa_1','deco_nebulosa_2'].forEach(n=>{const i=new Image();i.decoding='async';i.onload=()=>{IMG[n]=i;};i.src='img/'+n+'.webp';});
+const JARDIN_PASTO=.770;  // el pasto del jardín empieza al 77 % del alto de la imagen
+/* Suelo inicial: castillo lejano (capa lenta) + jardín con la casita. El pasto coincide con la línea que se pisa. */
+function drawGround(p){if(!hasImg('bg_jardin'))return false;const off=p.y-H*.9;
+  if(hasImg('bg_castillo_lejano')){const im=IMG.bg_castillo_lejano,w=W*1.04,h=w*im.height/im.width;ctx.drawImage(im,(W-w)/2,H*.9-h*.92+off*.45-H*.06,w,h);}
+  const im=IMG.bg_jardin,h=W*im.height/im.width,top=p.y-h*JARDIN_PASTO;
+  ctx.fillStyle='#a8b075';ctx.fillRect(0,top+h-2,W,H);ctx.drawImage(im,0,top,W,h);return true;}
+/* Decoración por altura (metros). w = ancho relativo a la pantalla, par = velocidad (más chico = más lejos) */
+const DECO_IMG=[
+  {h:70, n:'deco_pajaritos',x:.32,w:.55,a:.9, drift:1},
+  {h:125,n:'deco_globo_1',  x:.78,w:.3, a:.95,bob:1},
+  {h:160,n:'deco_pajaritos',x:.62,w:.45,a:.85,drift:1},
+  {h:188,n:'deco_globo_2',  x:.2, w:.26,a:.95,bob:1},
+  {h:232,n:'deco_arcoiris', x:.5, w:1.05,a:.75},
+  {h:272,n:'deco_pajaritos',x:.4, w:.4, a:.7, drift:1},
+  {h:300,n:'deco_tierra',   x:.5, w:1.9,a:1,  par:.12,minY:.66,from:288}, /* la Tierra aparece abajo y se va quedando atrás */
+  {h:370,n:'deco_satelite', x:.76,w:.4, a:.9, sway:1},
+  {h:442,n:'deco_luna',     x:.7, w:.62,a:.95,par:.14},
+  {h:484,n:'deco_cohete',   x:.22,w:.26,a:.95,bob:1},
+  {h:542,n:'deco_saturno',  x:.3, w:.75,a:.95,par:.14},
+  {h:588,n:'deco_satelite', x:.78,w:.36,a:.85,sway:1},
+  {h:642,n:'deco_planeta_alien',x:.72,w:.58,a:.95,par:.14},
+  {h:674,n:'deco_ovni',     x:.25,w:.4, a:.95,drift:1,bob:1}];
+function decoImg(d,m){if(!hasImg(d.n))return;const im=d.tint?tinted(d.n,d.tint[0],d.tint[1]):IMG[d.n];if(!im)return;
+  if(d.from&&m<d.from)return;const par=d.par||.18;let y=H*.45+(m-d.h)*H*.1*par;if(d.minY)y=Math.max(y,H*d.minY);const fa=d.from?Math.min(1,(m-d.from)/10):1;const w=W*d.w,h=w*im.height/im.width;if(y-h>H+20||y+h<-20)return;
+  let x=d.x*W;if(d.drift)x+=Math.sin(T*.18+d.h)*W*.12;const by=d.bob?Math.sin(T*1.3+d.h)*5:0;
+  ctx.save();ctx.globalAlpha=d.a*fa;ctx.translate(x,(d.minY?y:y-h/2)+by);if(d.sway)ctx.rotate(Math.sin(T*.6+d.h)*.08);if(d.flip)ctx.scale(-1,1);ctx.drawImage(im,-w/2,d.minY?0:-h/2,w,h);ctx.restore();}
+const NUBE_TINT=[null,['#ffb08f',.25],['#a993ee',.3]];
+function drawDecorImg(m){
+  /* nebulosas en el espacio (muy lejos, muy suaves) */
+  if(m>290)for(let k=Math.max(0,Math.floor((m-330)/110)-1);k<=Math.floor((m-330)/110)+2;k++){const h=330+k*110;if(h<330)continue;
+    decoImg({h,n:k%2?'deco_nebulosa_2':'deco_nebulosa_1',x:k%2?.68:.32,w:1.25,a:.5,par:.1,flip:k%4>1},m);}
+  /* nubes de fondo en el cielo (0-300 m), teñidas según la zona */
+  if(m<330)for(let k=Math.max(0,Math.floor(m/26)-6);k<=Math.floor(m/26)+6;k++){const h=18+k*26;if(h>300)continue;const z=Math.min(2,Math.floor(h/100));
+    decoImg({h,n:'deco_nube_'+(1+k%3),x:((k*37)%70+15)/100,w:.75+((k*13)%30)/100,a:z===2?.5:.7,par:.12,tint:NUBE_TINT[z],flip:k%2===1},m);}
+  DECO_IMG.forEach(d=>decoImg(d,m));
+  /* planetas de caramelo que siguen apareciendo en la galaxia */
+  if(m>700)for(let k=Math.max(0,Math.floor((m-745)/85)-1);k<=Math.floor((m-745)/85)+2;k++){const h=745+k*85;
+    decoImg({h,n:'deco_planeta_caramelo_'+(1+k%3),x:k%2?.74:.26,w:.42+(k%3)*.06,a:.95,par:.14},m);}}
+
 /* Decorados grandes que aparecen a cierta altura y se van quedando abajo (más lentos que las plataformas) */
 const DECOR=[
   {h:135,f:(x,y)=>balloon(x+W*.22,y,1,'#ff8fb8','#fff')},{h:170,f:(x,y)=>balloon(x-W*.25,y,.8,'#8fd0e8','#fff6c4')},
   {h:225,f:(x,y)=>rainbow(x,y)},{h:265,f:(x,y)=>plane(x+W*.2,y)},
   {h:325,f:(x,y)=>earth(x,y)},{h:440,f:(x,y)=>moon(x+W*.25,y)},{h:540,f:(x,y)=>saturn(x-W*.22,y)},
   {h:600,f:(x,y)=>rocket(x+W*.28,y)},{h:645,f:(x,y)=>alienPlanet(x+W*.22,y)},{h:745,f:(x,y)=>candyPlanet(x-W*.2,y)}];
-function drawDecor(m){const px=H*.1*.18;
+function drawDecor(m){if(hasImg('deco_nube_1')){drawDecorImg(m);return;}const px=H*.1*.18;
   DECOR.forEach(d=>{const y=H*.45+(m-d.h)*px;if(y>-H*.6&&y<H*1.6)d.f(W/2,y);});
   if(m>780){const k=Math.floor((m-760)/90);for(let i=k-1;i<=k+1;i++){if(i<0)continue;const h=780+i*90,y=H*.45+(m-h)*px;if(y>-H*.5&&y<H*1.5)candyPlanet(W*(.2+((i*37)%60)/100),y,i);}}}
 function balloon(x,y,s,a,b){const r=28*s;ctx.lineWidth=2;ctx.strokeStyle=INK;ctx.save();ctx.beginPath();ctx.ellipse(x,y,r,r*1.15,0,0,7);ctx.fillStyle=a;ctx.fill();ctx.clip();
@@ -3440,7 +3483,7 @@ function cloudShape(x,y,w,fill,dashed){ctx.fillStyle=fill;ctx.strokeStyle=INK;ct
   ctx.arc(x+w/2-10,y+2,9,Math.PI*1.5,Math.PI*.5);ctx.closePath();ctx.fill();ctx.stroke();ctx.setLineDash([]);}
 function platDraw(p){const x=p.x,y=p.y,w=p.w,brk=p.t==='b',mov=p.t==='m';ctx.strokeStyle=INK;ctx.lineWidth=2;
   switch(p.skin){
-  case 'ground':{ctx.fillStyle='#b5e3c8';ctx.fillRect(0,y,W,H);ctx.fillStyle='#8fd3a8';ctx.fillRect(0,y,W,6);ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
+  case 'ground':{if(drawGround(p))break;ctx.fillStyle='#b5e3c8';ctx.fillRect(0,y,W,H);ctx.fillStyle='#8fd3a8';ctx.fillRect(0,y,W,6);ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();
     house(W*.8,y);[.12,.24,.36].forEach(f=>{const fx=W*f;ctx.fillStyle='#5cb87a';ctx.beginPath();ctx.ellipse(fx,y-6,3,7,0,0,7);ctx.fill();ctx.fillStyle='#e8456b';ctx.beginPath();ctx.arc(fx+5,y-4,3,0,7);ctx.fill();});
     ctx.strokeStyle='#c79a63';ctx.lineWidth=3;for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(W*.5+i*12,y);ctx.lineTo(W*.5+i*12,y-16);ctx.stroke();}ctx.beginPath();ctx.moveTo(W*.5-4,y-10);ctx.lineTo(W*.5+52,y-10);ctx.stroke();break;}
   case 'sunset':cloudShape(x,y,w,brk?'#ffd1e1':mov?'#ffe0cc':'#fff1ea',brk);break;
