@@ -3311,6 +3311,7 @@ const G_CATCH={id:'catch',ic:'🍓',title:'Atrapa frutillas',help:'Deslizá el d
   draw(){const p=this.sky(),k=clamp((p-.4)*2,0,1);drawSky(p,0);drawHills(p);
     C.items.forEach(o=>{halo(o.x,o.y,o.r,k);o.t==='s'?scissors(o.x,o.y,o.r,o.rot):o.t==='c'?candy(o.x,o.y,o.r,o.rot+o.y*.02):strawberry(o.x,o.y,o.r,o.rot+o.y*.02,o.t==='g');});
     drawParts();const P=C.P;if(!(P.hit>0&&Math.floor(P.hit*10)%2===0))drawMochita(ctx,P.x,P.y,P.r,{sq:P.sq*.12,pose:P.hit>0?'triste':undefined});
+    if(window.SHOWCOL){ctx.save();ctx.lineWidth=2;ctx.strokeStyle='rgba(220,0,60,.95)';ctx.beginPath();ctx.arc(P.x,P.y-4,P.r*.85,0,6.283);ctx.stroke();ctx.strokeStyle='rgba(0,200,90,.9)';C.items.forEach(o=>{ctx.beginPath();ctx.arc(o.x,o.y,o.r,0,6.283);ctx.stroke();});ctx.restore();}
     if(gstate==='play'&&C.flash>0)bigText('Nivel '+C.lv,'¡más rápido! ✨',C.flash);},
   hud(){return[`🍓 ${C.score}`,'❤️'.repeat(clamp(C.lives,0,3))+'🤍'.repeat(clamp(3-C.lives,0,3)),`⭐ ${C.lv}`];},
   end(){const rec=C.score>S.game.best;if(rec)S.game.best=C.score;return{big:C.score,label:'frutillas atrapadas',rec,extra:`+${C.score} 🍓 guardadas`};},
@@ -3357,6 +3358,9 @@ const G_JUMP={id:'jump',ic:'☁️',title:'Mochita salta',help:'Deslizá el dedo
     if(pose==='base'&&(T%3.4)<.13)pose='parpadeo';
     const stretch=v<0?-Math.min(.07,-v*.07):0,sq=m.sq>0?m.sq*.16:stretch;
     drawMochitaSprite(ctx,m.x,m.y,J.r,{pose,sq,tilt:clamp((m.tx-m.x)*.004,-.18,.18)});
+    if(window.SHOWCOL){ctx.save();ctx.lineWidth=2;J.pl.forEach(p=>{if(p.skin==='ground')return;const hw=p.w/2+J.r*.35;ctx.strokeStyle='rgba(0,200,90,.9)';ctx.beginPath();ctx.moveTo(p.x-hw,p.y);ctx.lineTo(p.x+hw,p.y);ctx.stroke();
+        if(p.spring){const sw=SPRING_W*.5+J.r*.45,ty=p.y-SPRING_H*.75;ctx.strokeStyle='rgba(255,140,0,.95)';ctx.beginPath();ctx.moveTo(p.x-sw,ty);ctx.lineTo(p.x+sw,ty);ctx.stroke();}});
+      ctx.strokeStyle='rgba(220,0,60,.95)';ctx.beginPath();ctx.moveTo(m.x-8,m.y+J.r*.95);ctx.lineTo(m.x+8,m.y+J.r*.95);ctx.stroke();ctx.beginPath();ctx.arc(m.x,m.y,J.r,0,6.283);ctx.stroke();ctx.restore();}
     if(gstate==='play'&&J.flash>0)bigText(WORLDS[J.stage].n,J.stage?`¡llegaste a ${J.stage*100} m! ✨`:'',J.flash);},
   hud(){return[`${WORLDS[J.stage||0].n.split(' ')[0]} ${this.meters()} m`,`🍓 ${J.fresas}`];},
   end(){const m=this.meters(),rec=m>(S.games.jump.best||0);if(rec)S.games.jump.best=m;return{big:m+' m',label:'de altura',rec,extra:`+${J.fresas} 🍓 guardadas`,delay:200};},
@@ -3623,6 +3627,7 @@ const G_FLY={id:'fly',ic:'🎈',title:'Mochita vuela',help:'Tocá la pantalla pa
     drawParts();const m=F.me,bx=m.x+F.r*.25,by=m.y-F.r*2.5;ctx.strokeStyle=INK;ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(m.x+F.r*.1,m.y-F.r*.9);ctx.quadraticCurveTo(bx-6,by+F.r,bx,by+F.r*.85);ctx.stroke();
     ctx.lineWidth=2.5;ell(ctx,bx,by,F.r*.7,F.r*.85,0,xm?'#e0394b':'#ff6fa3',1);ell(ctx,bx-F.r*.22,by-F.r*.3,F.r*.13,F.r*.22,-.4,'rgba(255,255,255,.7)');
     ctx.save();ctx.translate(m.x,m.y);ctx.rotate(clamp(m.vy/(H*2),-.35,.45));drawMochita(ctx,0,0,F.r,{pose:m.vy<-H*.15?'sube':m.vy>H*.4?'cae':'base'});ctx.restore();
+    if(window.SHOWCOL){ctx.save();ctx.lineWidth=2;ctx.strokeStyle='rgba(220,0,60,.95)';const rr=F.r*.8;ctx.strokeRect(m.x-rr,m.y-rr,rr*2,rr*2);ctx.strokeStyle='rgba(0,200,90,.9)';F.cols.forEach(c=>{ctx.strokeRect(c.x,c.gy,c.w,c.gap);});ctx.restore();}
     if(gstate==='play'&&!F.started)bigText('¡Tocá para volar!','',1);},
   hud(){return[`🎈 ${F.passed}`,`🍓 ${F.fresas}`];},
   end(){const rec=F.passed>(S.games.fly.best||0);if(rec)S.games.fly.best=F.passed;return{big:F.passed,label:'columnas pasadas',rec,extra:`+${F.fresas} 🍓 guardadas`};},
@@ -3852,12 +3857,14 @@ if(TEST){const b=document.createElement('button');b.id='testBtn';b.textContent='
   p.innerHTML=`<b>🧪 Modo prueba</b><small>Solo existe en tu versión de prueba. Sus datos no se tocan.</small><div id="testDate"></div>
   <div class="tp-row"><button data-d="">Hoy real</button><button data-d="2026-12-01">1 dic</button><button data-d="2026-12-14">14 dic</button><button data-d="2026-12-24">24 dic</button><button data-d="2026-12-25">25 dic</button>
   <button data-d="2027-02-14">14 feb</button><button data-d="2027-02-18">18 feb</button></div>
-  <div class="tp-row"><button id="tpF">+5.000 🍓</button><button id="tpL">Nivel 12</button><button id="tpR">Borrar datos de prueba</button></div>`;document.body.appendChild(p);
+  <div class="tp-row"><button id="tpF">+5.000 🍓</button><button id="tpL">Nivel 12</button><button id="tpR">Borrar datos de prueba</button></div>
+  <div class="tp-row"><button id="tpC">Ver colisiones: no</button></div><small>Verde = donde se puede pisar/atrapar · rojo = Mochita · naranja = resorte</small>`;document.body.appendChild(p);
   b.onclick=()=>p.classList.toggle('hidden');
   const showD=()=>{$('testDate').textContent='Fecha de la app: '+NOW().toLocaleDateString('es')+(SIMOFF?' (simulada)':'');};showD();
   p.querySelectorAll('[data-d]').forEach(x=>x.onclick=()=>{const v=x.dataset.d;if(!v)SIMOFF=0;else{const[y,m,d]=v.split('-').map(Number),n=new Date();SIMOFF=new Date(y,m-1,d,n.getHours(),n.getMinutes(),n.getSeconds())-n;}
     applySeason();renderWater();tickTogether();renderSpin();renderAch();renderGames();renderShop();showD();toast('📅 '+NOW().toLocaleDateString('es'));});
   $('tpF').onclick=()=>{S.game.total+=5000;save();updHud();renderGames();renderShop();toast('+5.000 🍓');};
+  $('tpC').onclick=()=>{window.SHOWCOL=!window.SHOWCOL;$('tpC').textContent='Ver colisiones: '+(window.SHOWCOL?'sí':'no');};
   $('tpL').onclick=()=>{S.game.bestLevel=Math.max(12,S.game.bestLevel||1);save();renderShop();toast('Nivel 12 desbloqueado');};
   $('tpR').onclick=()=>ask('¿Borrar todos los datos de <b>esta versión de prueba</b>?','Borrar',()=>{S=merge({},def);try{localStorage.removeItem(KEY);}catch(e){}mem=null;location.reload();});}
 
