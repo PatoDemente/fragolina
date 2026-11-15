@@ -3319,7 +3319,7 @@ function springDraw(x,y,c){const h=20*(1-c*.55)+(c>0?0:Math.sin(T*6)*1.2);
 /* ---------- IMÁGENES (ilustraciones de Mochita y objetos) ---------- */
 const IMG={};
 ['mochita_base','mochita_parpadeo','mochita_sube','mochita_cae','mochita_feliz','mochita_triste','acc_corona',
- 'plat_nube','plat_nube_movil','plat_nube_fragil','plat_nube_rota','plat_meteorito','plat_nave','plat_cristal','plat_alien','plat_estrellas','obj_frutilla','obj_resorte_1','obj_resorte_2']
+ 'plat_nube','plat_nube_movil','plat_nube_fragil','plat_nube_rota','plat_meteorito','plat_nave','plat_cristal','plat_alien','plat_estrellas','carta_dorso','memo_frutilla','memo_castillo','memo_globo','memo_cupcake','memo_flor','memo_luna','memo_arbol','memo_regalo','memo_munieco','memo_campana','memo_galleta','memo_estrella','memo_media','obj_frutilla','obj_resorte_1','obj_resorte_2']
  .forEach(n=>{const i=new Image();i.decoding='async';i.onload=()=>{IMG[n]=i;};i.src='img/'+n+'.webp';});
 const hasImg=n=>!!(IMG[n]&&IMG[n].naturalWidth);
 /* Medidas de las imágenes de Mochita (lienzo 256): base del cuerpo en y=230, ancho del cuerpo 139 px.
@@ -3470,27 +3470,34 @@ function house(x,y){ctx.lineWidth=2;ctx.strokeStyle=INK;const w=74,h=50;ctx.fill
 
 /* ---------- JUEGO 3: MEMOTEST ---------- */
 const M={cards:[],sel:[],moves:0,matched:0,lock:0,fres:0,done:0};
-function memoLayout(){const top=H*.14,bot=H*.05,cols=4,rows=4,gap=10;let cw=(W-30-gap*(cols-1))/cols,ch=cw*1.25;
-  const maxH=(H-top-bot-gap*(rows-1))/rows;if(ch>maxH){ch=maxH;cw=ch/1.25;}const ox=(W-(cw*cols+gap*(cols-1)))/2,oy=top+((H-top-bot)-(ch*rows+gap*(rows-1)))/2;
+const CARD_R=4/3; // proporción de la carta ilustrada (3 de ancho por 4 de alto)
+function memoLayout(){const top=Math.max(72,H*.11),bot=Math.max(18,H*.04),cols=4,rows=4,gap=Math.max(8,W*.025);let cw=(W-28-gap*(cols-1))/cols,ch=cw*CARD_R;
+  const maxH=(H-top-bot-gap*(rows-1))/rows;if(ch>maxH){ch=maxH;cw=ch/CARD_R;}const ox=(W-(cw*cols+gap*(cols-1)))/2,oy=top+((H-top-bot)-(ch*rows+gap*(rows-1)))/2;
   M.cards.forEach((c,i)=>{c.x=ox+(i%cols)*(cw+gap);c.y=oy+Math.floor(i/cols)*(ch+gap);c.w=cw;c.h=ch;});}
+/* Dibujo del frente de cada carta (ilustraciones; la corona y Mochita usan las imágenes ya aprobadas) */
+function memoIcon(k,w){const s=w*.74;
+  if(k==='mochita'||k==='mochita_x'){drawMochitaSprite(ctx,0,w*.1,w*.25,{pose:'feliz',eq:k==='mochita_x'?{head:'santa'}:{}});return;}
+  if(k==='corona'&&hasImg('acc_corona')){ctx.drawImage(IMG.acc_corona,-s/2,-s*.78,s,s);return;}
+  const n='memo_'+k;if(hasImg(n)){ctx.drawImage(IMG[n],-s/2,-s/2,s,s);return;}
+  const em={frutilla:'🍓',castillo:'🏰',globo:'🎈',cupcake:'🧁',flor:'🌸',luna:'🌙',arbol:'🎄',regalo:'🎁',munieco:'⛄',campana:'🔔',galleta:'🍪',estrella:'⭐',media:'🧦'}[k]||'❔';
+  ctx.font=`${Math.floor(w*.5)}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(em,0,2);}
 const G_MEMO={id:'memo',ic:'🃏',title:'Memotest',help:'Dá vuelta las cartas y encontrá los pares 🃏<br>Ganás de 20 a 90 🍓: con menos movimientos, más',
-  reset(count){const ic=isXmas()?['🎄','🎁','⛄','🔔','🍓','🍪','⭐','🧦']:['🍓','🧁','💗','🌸','⭐','🎀','🍰','🌙'];
+  reset(count){const ic=isXmas()?['arbol','regalo','munieco','campana','galleta','estrella','media','mochita_x']:['frutilla','corona','castillo','globo','cupcake','flor','luna','mochita'];
     const deck=[...ic,...ic].map(e=>({e,up:0,f:0,done:0}));for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
     M.cards=deck;M.sel=[];M.moves=0;M.matched=0;M.lock=0;M.fres=0;M.done=0;parts=[];memoLayout();if(count){S.games.memo.plays++;save();}},
   onResize(){memoLayout();},
-  pointer(t,x,y){if(t!=='down'||M.lock>0||M.done)return;const c=M.cards.find(c=>x>=c.x&&x<=c.x+c.w&&y>=c.y&&y<=c.y+c.h);if(!c||c.up||c.done)return;
+  pointer(t,x,y){if(t!=='down'||M.lock>0||M.done||M.sel.length>=2)return; /* con 2 cartas dadas vuelta no se puede tocar una tercera */const c=M.cards.find(c=>x>=c.x&&x<=c.x+c.w&&y>=c.y&&y<=c.y+c.h);if(!c||c.up||c.done)return;
     c.up=1;SFX.flip();M.sel.push(c);if(M.sel.length===2){M.moves++;const[a,b]=M.sel;
-      if(a.e===b.e){a.done=b.done=1;M.matched++;M.sel=[];setTimeout(()=>{SFX.pop();burst(a.x+a.w/2,a.y+a.h/2,'#f2c94c',8);burst(b.x+b.w/2,b.y+b.h/2,'#f2c94c',8);},200);
+      if(a.e===b.e){a.done=b.done=1;M.matched++;M.sel=[];setTimeout(()=>{SFX.pop();sparkle(a.x+a.w/2,a.y+a.h/2);sparkle(b.x+b.w/2,b.y+b.h/2);},220);
         if(M.matched===8){M.done=1;M.fres=Math.max(20,90-(M.moves-8)*4);addFresas(M.fres,0);save();setTimeout(finishG,900);}}
       else M.lock=.85;}setHud();},
-  update(dt){M.cards.forEach(c=>{c.f+=((c.up?1:0)-c.f)*Math.min(1,dt*12);});if(M.lock>0){M.lock-=dt;if(M.lock<=0){M.sel.forEach(c=>c.up=0);M.sel=[];}}stepParts(dt);},
-  draw(){drawSky(0,0);M.cards.forEach(c=>{const s=Math.abs(Math.cos(c.f*Math.PI)),front=c.f>.5,cx=c.x+c.w/2;ctx.save();ctx.translate(cx,c.y+c.h/2);ctx.scale(Math.max(.02,s),1);
-      ctx.lineWidth=2;ctx.strokeStyle=front&&c.done?'#d4af37':INK;ctx.beginPath();ctx.roundRect?ctx.roundRect(-c.w/2,-c.h/2,c.w,c.h,12):ctx.rect(-c.w/2,-c.h/2,c.w,c.h);
-      if(front){ctx.fillStyle=c.done?'#fff8e1':'#fff';ctx.fill();ctx.stroke();ctx.font=`${Math.floor(c.w*.5)}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(c.e,0,2);}
-      else{const g=ctx.createLinearGradient(0,-c.h/2,0,c.h/2);g.addColorStop(0,'#f4a7c1');g.addColorStop(1,'#c85a82');ctx.fillStyle=g;ctx.fill();ctx.stroke();
-        ctx.strokeStyle='#f1dc94';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect?ctx.roundRect(-c.w/2+5,-c.h/2+5,c.w-10,c.h-10,8):ctx.rect(-c.w/2+5,-c.h/2+5,c.w-10,c.h-10);ctx.stroke();
-        heart(ctx,0,0,c.w*.13);ctx.fillStyle='rgba(255,255,255,.85)';ctx.fill();}
-      ctx.restore();});drawParts();},
+  update(dt){M.cards.forEach(c=>{c.f+=((c.up?1:0)-c.f)*Math.min(1,dt*12);});if(M.lock>0){M.lock-=dt;if(M.lock<=0){M.sel.forEach(c=>c.up=0);M.sel=[];}}stepParts(dt);stepFx(dt);},
+  draw(){drawSky(0,0);M.cards.forEach(c=>{const sx=Math.abs(Math.cos(c.f*Math.PI)),front=c.f>.5,lift=Math.sin(c.f*Math.PI)*4;ctx.save();ctx.translate(c.x+c.w/2,c.y+c.h/2-lift);ctx.scale(Math.max(.02,sx),1);
+      ctx.fillStyle='rgba(90,40,80,.12)';ctx.beginPath();ctx.ellipse(0,c.h/2+3+lift,c.w*.42,4,0,0,7);ctx.fill();
+      if(!front){if(hasImg('carta_dorso'))ctx.drawImage(IMG.carta_dorso,-c.w/2,-c.h/2,c.w,c.h);else{ctx.fillStyle='#e8a3bd';ctx.beginPath();ctx.roundRect?ctx.roundRect(-c.w/2,-c.h/2,c.w,c.h,10):ctx.rect(-c.w/2,-c.h/2,c.w,c.h);ctx.fill();}}
+      else{ctx.beginPath();ctx.roundRect?ctx.roundRect(-c.w/2+1,-c.h/2+1,c.w-2,c.h-2,c.w*.12):ctx.rect(-c.w/2,-c.h/2,c.w,c.h);ctx.fillStyle=c.done?'#fff8ec':'#fffdfb';ctx.fill();
+        ctx.lineWidth=c.done?2.5:1.8;ctx.strokeStyle=c.done?'#d4af37':'#4a2c3a';ctx.stroke();memoIcon(c.e,c.w);}
+      ctx.restore();});drawFx();drawParts();},
   hud(){return[`🃏 ${M.moves} mov.`,`✅ ${M.matched}/8`];},
   end(){const b=S.games.memo.best,rec=!b||M.moves<b;if(rec)S.games.memo.best=M.moves;return{title:'¡Completado! 🎉',big:M.moves,label:'movimientos',rec,good:1,extra:`+${M.fres} 🍓 guardadas`};},
   bestTxt(){return S.games.memo.best?`Mejor: ${S.games.memo.best} movimientos`:'¡Jugá tu primera partida!';}};
