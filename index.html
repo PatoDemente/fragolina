@@ -2893,12 +2893,12 @@ function renderWater(){
 /* Premio por agua: +40 fresitas al cumplir la meta (1 vez por día, meta mínima 6 vasos).
    Cada 7 días seguidos cumpliendo: +250 extra. */
 const W_REWARD=40, W_STREAK_BONUS=250, W_MIN_GOAL=6;
-function streak(){let n=0;const d=NOW();while(S.water.rewarded[dkey(d)]){n++;d.setDate(d.getDate()-1);}return n;}
+function streak(){let n=0;const d=NOW();if(!S.water.rewarded[dkey(d)])d.setDate(d.getDate()-1);while(S.water.rewarded[dkey(d)]){n++;d.setDate(d.getDate()-1);}return n;}
 function renderReward(){const k=dkey(NOW()),done=!!S.water.rewarded[k],st=streak();
   $('wReward').innerHTML= S.water.goal<W_MIN_GOAL
     ? `🍓 Con una meta de ${W_MIN_GOAL} vasos o más ganás fresitas`
     : done ? `✅ Hoy ganaste <b>+${W_REWARD} 🍓</b> · Racha: <b>${st} ${st===1?'día':'días'}</b> 🔥`
-           : `Cumplí la meta y ganá <b>+${W_REWARD} 🍓</b> · Racha: <b>${st}</b> 🔥<br><small>7 días seguidos = +${W_STREAK_BONUS} 🍓 extra</small>`;}
+           : `Cumplí la meta y ganá <b>+${W_REWARD} 🍓</b> · Racha: <b>${st} ${st===1?'día':'días'}</b> 🔥<br><small>${st>0?'¡Cumplí hoy para que no se corte! · ':''}7 días seguidos = +${W_STREAK_BONUS} 🍓 extra</small>`;}
 $('wPlus').onclick=()=>{const k=dkey(NOW());const now=(S.water.history[k]||0)+1;S.water.history[k]=now;
   if(now>=S.water.goal&&S.water.goal>=W_MIN_GOAL&&!S.water.rewarded[k]){
     S.water.rewarded[k]=true;S.game.total+=W_REWARD;try{SFX.win()}catch(e){}let msg=`👑 ¡Meta cumplida! +${W_REWARD} 🍓`;
