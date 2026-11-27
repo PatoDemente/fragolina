@@ -375,6 +375,20 @@ nav button.on{background:var(--rose);color:#fff;box-shadow:none}
 .gear{border:1px solid var(--pink2)}
 .reward{border:1px solid var(--pink2);background:var(--tint)}
 .reward small{color:var(--rose-d)}
+.cd-card{text-align:center;background:linear-gradient(160deg,#fff,var(--tint))}
+.cd-t{font-family:'Playfair Display',serif;font-weight:700;font-size:19px;color:var(--rose-d);margin-bottom:10px}
+.cd-row{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+.cd-row div{background:#fff;border:1px solid var(--pink2);border-radius:14px;padding:8px 0 6px}
+.cd-row b{display:block;font-size:24px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;line-height:1.1}
+.cd-row span{font-size:10.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.cd-trip{display:flex;align-items:center;gap:8px;margin:14px 2px 6px;font-size:18px}
+.cd-line{position:relative;flex:1;height:4px;border-radius:4px;background:repeating-linear-gradient(90deg,var(--pink2) 0 6px,transparent 6px 11px)}
+.cd-line i{position:absolute;left:0;top:0;bottom:0;border-radius:4px;background:var(--rose)}
+.cd-line em{position:absolute;top:50%;transform:translate(-50%,-55%);font-style:normal;font-size:18px;transition:left .6s}
+.cd-sub{font-size:12px;font-weight:700;color:var(--muted)}
+.cd-sub small{font-weight:600;opacity:.8}
+.cd-card.done .cd-row,.cd-card.done .cd-trip{display:none}
+.cd-card.done .cd-t{font-size:22px;margin:4px 0 6px}
 </style>
 </head>
 <body>
@@ -400,6 +414,12 @@ nav button.on{background:var(--rose);color:#fff;box-shadow:none}
     <div class="hello card">
       <div class="hi-text"><h2 class="hi-title" id="hiTitle"></h2><div class="bubble" id="hiBubble"></div></div>
       <canvas id="hiMochi"></canvas>
+    </div>
+    <div class="card cd-card hidden" id="cdCard">
+      <div class="cd-t" id="cdT">✈️ Falta poquito para vernos</div>
+      <div class="cd-row"><div><b id="cdD">0</b><span>días</span></div><div><b id="cdH">0</b><span>horas</span></div><div><b id="cdM">0</b><span>min</span></div><div><b id="cdS">0</b><span>seg</span></div></div>
+      <div class="cd-trip"><span>🇦🇷</span><div class="cd-line"><i id="cdBar"></i><em id="cdPlane">✈️</em></div><span>🇮🇹</span></div>
+      <div class="cd-sub" id="cdSub">9 de diciembre · 16:00 en Italia <small>(12:00 en Argentina)</small></div>
     </div>
     <div class="card anniv-card hidden" id="anniv">
       <h2 id="anTitle">💍 ¡Feliz aniversario!</h2>
@@ -3782,6 +3802,22 @@ function renderAch(){const g=$('achs');g.innerHTML='';let on=0;
   $('achCount').textContent=`${on}/${ACH.length}`;}
 document.querySelectorAll('#achF button').forEach(b=>b.onclick=()=>{ACHF=b.dataset.f;document.querySelectorAll('#achF button').forEach(x=>x.classList.toggle('on',x===b));renderAch();});
 tickTogether();setInterval(tickTogether,1000);
+/* ===== Cuenta regresiva: llegada a Italia ===== */
+const MEET=Date.UTC(2026,11,9,15,0,0);   // 9/12/2026 16:00 hora de Italia (= 12:00 Argentina)
+const MEET_SPAN=30*864e5;                // el avioncito recorre los últimos 30 días
+let meetCelebrated=false;
+function tickMeet(){const card=$('cdCard');if(!card)return;const now=NOW().getTime(),left=MEET-now;
+  if(left<-12*36e5){card.classList.add('hidden');return;}
+  card.classList.remove('hidden');
+  if(left<=0){card.classList.add('done');$('cdT').textContent='¡Ya estamos juntos! 💗';$('cdSub').textContent='Bienvenida a Italia, mi amor 🇮🇹';
+    if(!meetCelebrated&&left>-60000){meetCelebrated=true;buzz([80,60,80,60,160]);toast('🇮🇹 ¡Llegó el día! Bienvenida, mi amor 💗');}return;}
+  if(card.classList.contains('done')){card.classList.remove('done');$('cdSub').innerHTML='9 de diciembre · 16:00 en Italia <small>(12:00 en Argentina)</small>';}
+  const sec=Math.floor(left/1000),d=Math.floor(sec/86400),h=Math.floor(sec%86400/3600),m=Math.floor(sec%3600/60),ss=sec%60;
+  $('cdD').textContent=d;$('cdH').textContent=h;$('cdM').textContent=m;$('cdS').textContent=String(ss).padStart(2,'0');
+  $('cdT').textContent=left<36e5?'🥹 ¡Ya casi aterrizás!':left<864e5?'💗 ¡Menos de un día para vernos!':'✈️ Falta poquito para vernos';
+  const p=Math.max(0,Math.min(1,1-left/MEET_SPAN));$('cdBar').style.width=(p*100)+'%';$('cdPlane').style.left=(p*100)+'%';}
+tickMeet();setInterval(tickMeet,1000);
+
 setInterval(()=>{if(document.querySelector('#s-tienda.active')&&!spinning)renderSpin();},30000);
 renderSpin();renderAch();
 
